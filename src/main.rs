@@ -4,6 +4,7 @@
 #![allow(clippy::type_complexity)]
 
 mod components;
+mod game;
 mod resources;
 
 use bevy::diagnostic::*;
@@ -11,14 +12,23 @@ use bevy::prelude::*;
 use bevy_egui::{EguiPlugin, EguiSettings};
 use bevy_inspector_egui::{InspectableRegistry, WorldInspectorParams, WorldInspectorPlugin};
 
+use resources::gridworld::GridWorld;
+
 const WINDOW_WIDTH: f32 = 1024.0;
 const WINDOW_HEIGHT: f32 = 576.0;
 const ASPECT_RATIO: f32 = WINDOW_WIDTH / WINDOW_HEIGHT;
+
+const GRID_WIDTH: usize = 10;
+const GRID_HEIGHT: usize = 10;
 
 /// Initial setup
 fn setup(mut commands: Commands, _asset_server: Res<AssetServer>) {
     #[cfg(debug_assertions)]
     _asset_server.watch_for_changes().unwrap();
+
+    let gridworld = GridWorld::new(GRID_WIDTH, GRID_HEIGHT);
+
+    commands.insert_resource(gridworld);
 }
 
 /// Application entry
@@ -75,6 +85,7 @@ fn main() {
 
     registry.register::<components::MainCamera>();
     registry.register::<components::UiCamera>();
+    registry.register::<components::automata::Automata>();
 
     app.run();
 }

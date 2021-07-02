@@ -1,5 +1,7 @@
 //! ECS components
 
+pub mod automata;
+
 use bevy_inspector_egui::Inspectable;
 
 /// Main camera tag
