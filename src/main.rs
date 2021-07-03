@@ -4,15 +4,21 @@
 #![allow(clippy::type_complexity)]
 
 mod components;
+mod events;
 mod game;
+mod plugins;
 mod resources;
+mod states;
+mod systems;
 
 use bevy::diagnostic::*;
 use bevy::prelude::*;
 use bevy_egui::{EguiPlugin, EguiSettings};
 use bevy_inspector_egui::{InspectableRegistry, WorldInspectorParams, WorldInspectorPlugin};
 
-use resources::gridworld::GridWorld;
+use plugins::debug::*;
+use resources::gridworld::*;
+use states::*;
 
 const WINDOW_WIDTH: f32 = 1024.0;
 const WINDOW_HEIGHT: f32 = 576.0;
@@ -58,7 +64,7 @@ fn main() {
     .add_plugin(FrameTimeDiagnosticsPlugin);
 
     // egui
-    app.insert_resource(EguiSettings { scale_factor: 0.8 })
+    app.insert_resource(EguiSettings { scale_factor: 0.75 })
         .add_plugin(EguiPlugin);
 
     // inspector
@@ -70,10 +76,10 @@ fn main() {
     .add_plugin(WorldInspectorPlugin::new());
 
     // plugins
-    // TODO:
+    app.add_plugin(DebugPlugin);
 
     // game states
-    // TODO:
+    app.add_state(GameState::Intro);
 
     // setup
     app.add_startup_system(setup.system());

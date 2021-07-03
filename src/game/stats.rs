@@ -9,6 +9,7 @@ pub struct Stat {
 }
 
 impl Stat {
+    /// Gets the stat value
     pub fn value(&self) -> isize {
         self.value
     }
