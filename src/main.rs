@@ -3,6 +3,7 @@
 // bevy queries can produce a lot of this
 #![allow(clippy::type_complexity)]
 
+mod bundles;
 mod components;
 mod events;
 mod game;
@@ -18,6 +19,7 @@ use bevy_inspector_egui::{InspectableRegistry, WorldInspectorParams, WorldInspec
 
 use plugins::debug::*;
 use resources::gridworld::*;
+use resources::*;
 use states::*;
 
 const WINDOW_WIDTH: f32 = 1024.0;
@@ -27,14 +29,26 @@ const ASPECT_RATIO: f32 = WINDOW_WIDTH / WINDOW_HEIGHT;
 const GRID_WIDTH: usize = 10;
 const GRID_HEIGHT: usize = 10;
 
+pub const CELL_X_PIXELS: f32 = WINDOW_WIDTH / GRID_WIDTH as f32;
+pub const CELL_Y_PIXELS: f32 = WINDOW_HEIGHT / GRID_HEIGHT as f32;
+
 /// Initial setup
-fn setup(mut commands: Commands, _asset_server: Res<AssetServer>) {
+fn setup(
+    mut commands: Commands,
+    _asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
     #[cfg(debug_assertions)]
     _asset_server.watch_for_changes().unwrap();
 
     let gridworld = GridWorld::new(GRID_WIDTH, GRID_HEIGHT);
-
     commands.insert_resource(gridworld);
+
+    let materials = Materials {
+        player_automata: materials.add(Color::TEAL.into()),
+        ai_automata: materials.add(Color::ORANGE_RED.into()),
+    };
+    commands.insert_resource(materials);
 }
 
 /// Application entry

@@ -1,6 +1,7 @@
 //! ECS components
 
 pub mod automata;
+pub mod gridworld;
 
 use bevy_inspector_egui::Inspectable;
 

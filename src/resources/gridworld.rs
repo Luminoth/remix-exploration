@@ -1,10 +1,8 @@
 //! Gridworld resources
 
-/// A cell in the grid world
+/// A GridWorld cell
 #[derive(Debug, Default)]
-pub struct Cell {
-    // TODO: what do we need here?
-}
+pub struct Cell;
 
 /// The grid... world
 #[derive(Debug, Default)]
