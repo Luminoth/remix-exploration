@@ -19,7 +19,7 @@ use bevy_inspector_egui::{InspectableRegistry, WorldInspectorParams, WorldInspec
 
 use plugins::debug::*;
 use resources::gridworld::*;
-use resources::*;
+use resources::ui::*;
 use states::*;
 
 const WINDOW_WIDTH: f32 = 1024.0;
@@ -44,11 +44,23 @@ fn setup(
     let gridworld = GridWorld::new(GRID_WIDTH, GRID_HEIGHT);
     commands.insert_resource(gridworld);
 
-    let materials = Materials {
+    let automata_materials = resources::automata::Materials {
         player_automata: materials.add(Color::TEAL.into()),
         ai_automata: materials.add(Color::ORANGE_RED.into()),
     };
-    commands.insert_resource(materials);
+    commands.insert_resource(automata_materials);
+
+    let ui_materials = UiMaterials {
+        none: materials.add(Color::NONE.into()),
+    };
+    commands.insert_resource(ui_materials);
+
+    let button_materials = ButtonMaterials {
+        normal: materials.add(Color::DARK_GRAY.into()),
+        hovered: materials.add(Color::GRAY.into()),
+        pressed: materials.add(Color::WHITE.into()),
+    };
+    commands.insert_resource(button_materials);
 }
 
 /// Application entry
@@ -93,7 +105,46 @@ fn main() {
     app.add_plugin(DebugPlugin);
 
     // game states
-    app.add_state(GameState::Intro);
+    app.add_state(GameState::Intro)
+        // intro state systems
+        .add_system_set(
+            SystemSet::on_enter(GameState::Intro).with_system(states::intro::setup.system()),
+        )
+        .add_system_set(
+            SystemSet::on_update(GameState::Intro).with_system(states::intro::update.system()),
+        )
+        .add_system_set(
+            SystemSet::on_exit(GameState::Intro).with_system(states::intro::teardown.system()),
+        )
+        // remix state systems
+        .add_system_set(
+            SystemSet::on_enter(GameState::Remix).with_system(states::remix::setup.system()),
+        )
+        .add_system_set(
+            SystemSet::on_update(GameState::Remix).with_system(states::remix::update.system()),
+        )
+        .add_system_set(
+            SystemSet::on_exit(GameState::Remix).with_system(states::remix::teardown.system()),
+        )
+        // game state systems
+        .add_system_set(
+            SystemSet::on_enter(GameState::Game).with_system(states::game::setup.system()),
+        )
+        .add_system_set(
+            SystemSet::on_exit(GameState::Game).with_system(states::game::teardown.system()),
+        )
+        // game over state systems
+        .add_system_set(
+            SystemSet::on_enter(GameState::GameOver).with_system(states::gameover::setup.system()),
+        )
+        .add_system_set(
+            SystemSet::on_update(GameState::GameOver)
+                .with_system(states::gameover::update.system()),
+        )
+        .add_system_set(
+            SystemSet::on_exit(GameState::GameOver)
+                .with_system(states::gameover::teardown.system()),
+        );
 
     // setup
     app.add_startup_system(setup.system());

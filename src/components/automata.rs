@@ -5,7 +5,7 @@ use bevy_inspector_egui::Inspectable;
 
 use crate::bundles::automata::*;
 use crate::game::stats::*;
-use crate::resources::*;
+use crate::resources;
 use crate::{CELL_X_PIXELS, CELL_Y_PIXELS};
 
 /// Base automata health
@@ -43,7 +43,7 @@ impl Automata {
     /// Spawn a new automata
     pub fn spawn(
         commands: &mut Commands,
-        materials: Res<Materials>,
+        materials: Res<resources::automata::Materials>,
         stats: StatSet,
         player: bool,
         cell: Vec2,
