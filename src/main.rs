@@ -126,7 +126,9 @@ fn main() {
             SystemSet::on_enter(GameState::Remix).with_system(states::remix::setup.system()),
         )
         .add_system_set(
-            SystemSet::on_update(GameState::Remix).with_system(states::remix::update.system()),
+            SystemSet::on_update(GameState::Remix)
+                .with_system(states::remix::update_action.system())
+                .with_system(states::remix::update_modifier.system()),
         )
         .add_system_set(
             SystemSet::on_exit(GameState::Remix).with_system(states::remix::teardown.system()),

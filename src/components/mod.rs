@@ -2,6 +2,7 @@
 
 pub mod automata;
 pub mod gridworld;
+pub mod ui;
 
 use bevy_inspector_egui::Inspectable;
 

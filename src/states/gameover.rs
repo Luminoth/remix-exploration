@@ -4,6 +4,7 @@ use bevy::prelude::*;
 
 use super::*;
 
+use crate::components::ui::*;
 use crate::components::*;
 use crate::resources::ui::*;
 
@@ -77,6 +78,7 @@ pub fn setup(
                             material: button_materials.normal.clone(),
                             ..Default::default()
                         })
+                        .insert(ActionButton)
                         .with_children(|parent| {
                             parent.spawn_bundle(TextBundle {
                                 text: Text::with_section(
@@ -99,7 +101,7 @@ pub fn update(
     materials: Res<ButtonMaterials>,
     mut query: Query<
         (&Interaction, &mut Handle<ColorMaterial>),
-        (Changed<Interaction>, With<Button>),
+        (Changed<Interaction>, With<ActionButton>),
     >,
     mut state: ResMut<State<GameState>>,
 ) {
