@@ -7,11 +7,7 @@ use crate::resources::ui::*;
 use crate::*;
 
 /// Intro setup
-pub fn setup(
-    mut commands: Commands,
-    ui_materials: Res<UiMaterials>,
-    asset_server: Res<AssetServer>,
-) {
+pub fn setup(mut commands: Commands, ui_materials: Res<UiMaterials>, fonts: Res<Fonts>) {
     // cameras
     let mut camera = OrthographicCameraBundle::new_2d();
     camera.orthographic_projection.scaling_mode = bevy::render::camera::ScalingMode::FixedVertical;
@@ -62,7 +58,7 @@ pub fn setup(
                         text: Text::with_section(
                             "Running ...",
                             TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                font: fonts.normal.clone(),
                                 font_size: 30.0,
                                 color: Color::WHITE,
                             },

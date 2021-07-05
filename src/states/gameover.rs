@@ -12,7 +12,7 @@ pub fn setup(
     mut commands: Commands,
     ui_materials: Res<UiMaterials>,
     button_materials: Res<ButtonMaterials>,
-    asset_server: Res<AssetServer>,
+    fonts: Res<Fonts>,
 ) {
     // cameras
     commands.insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)));
@@ -56,7 +56,7 @@ pub fn setup(
                         text: Text::with_section(
                             "Game Over",
                             TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                font: fonts.normal.clone(),
                                 font_size: 30.0,
                                 color: Color::WHITE,
                             },
@@ -82,7 +82,7 @@ pub fn setup(
                                 text: Text::with_section(
                                     "Continue",
                                     TextStyle {
-                                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                        font: fonts.normal.clone(),
                                         font_size: 40.0,
                                         color: Color::rgb(0.9, 0.9, 0.9),
                                     },

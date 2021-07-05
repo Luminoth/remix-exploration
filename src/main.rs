@@ -35,11 +35,11 @@ pub const CELL_Y_PIXELS: f32 = WINDOW_HEIGHT / GRID_HEIGHT as f32;
 /// Initial setup
 fn setup(
     mut commands: Commands,
-    _asset_server: Res<AssetServer>,
+    asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     #[cfg(debug_assertions)]
-    _asset_server.watch_for_changes().unwrap();
+    asset_server.watch_for_changes().unwrap();
 
     let gridworld = GridWorld::new(GRID_WIDTH, GRID_HEIGHT);
     commands.insert_resource(gridworld);
@@ -54,6 +54,11 @@ fn setup(
         none: materials.add(Color::NONE.into()),
     };
     commands.insert_resource(ui_materials);
+
+    let fonts = Fonts {
+        normal: asset_server.load("fonts/FiraSans-Bold.ttf"),
+    };
+    commands.insert_resource(fonts);
 
     let button_materials = ButtonMaterials {
         normal: materials.add(Color::DARK_GRAY.into()),

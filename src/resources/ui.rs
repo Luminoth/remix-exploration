@@ -7,6 +7,10 @@ pub struct UiMaterials {
     pub none: Handle<ColorMaterial>,
 }
 
+pub struct Fonts {
+    pub normal: Handle<Font>,
+}
+
 /// Button material container resource
 pub struct ButtonMaterials {
     pub normal: Handle<ColorMaterial>,
