@@ -2,7 +2,7 @@
 
 use bevy_inspector_egui::Inspectable;
 
-use crate::resources::automata::PlayerAutomataStats;
+use crate::resources::automata::*;
 
 /// A single automata stat
 #[derive(Debug, Clone, Copy, Inspectable, Default)]
@@ -38,13 +38,19 @@ impl From<PlayerAutomataStats> for StatSet {
     }
 }
 
+impl From<AIAutomataStats> for StatSet {
+    fn from(stats: AIAutomataStats) -> Self {
+        Self {
+            fortitude: stats.fortitude.into(),
+        }
+    }
+}
+
 impl StatSet {
     /// Creates a new stat set
+    #[allow(dead_code)]
     pub fn new(fortitude: Stat) -> Self {
-        Self {
-            fortitude,
-            ..Default::default()
-        }
+        Self { fortitude }
     }
 
     /// Gets the value of the fortitude state

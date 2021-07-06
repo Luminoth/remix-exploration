@@ -2,12 +2,23 @@
 
 use bevy::prelude::*;
 
+use crate::components::automata::*;
 use crate::components::*;
 use crate::resources::ui::*;
 use crate::*;
 
+// TODO: player has to select a grid slot
+// and then the AI has to select a grid slot
+
 /// Game setup
-pub fn setup(mut commands: Commands, ui_materials: Res<UiMaterials>, fonts: Res<Fonts>) {
+pub fn setup(
+    mut commands: Commands,
+    player_stats: Res<PlayerAutomataStats>,
+    ai_stats: Res<AIAutomataStats>,
+    materials: Res<Materials>,
+    ui_materials: Res<UiMaterials>,
+    fonts: Res<Fonts>,
+) {
     // cameras
     let mut camera = OrthographicCameraBundle::new_2d();
     camera.orthographic_projection.scaling_mode = bevy::render::camera::ScalingMode::FixedVertical;
@@ -22,6 +33,10 @@ pub fn setup(mut commands: Commands, ui_materials: Res<UiMaterials>, fonts: Res<
         .spawn_bundle(UiCameraBundle::default())
         .insert(UiCamera)
         .insert(Name::new("UI Camera"));
+
+    // spawn automata
+    Automata::spawn_player(&mut commands, &materials, *player_stats, UVec2::new(0, 0));
+    Automata::spawn_ai(&mut commands, &materials, *ai_stats, UVec2::new(1, 1));
 
     // UI
     commands

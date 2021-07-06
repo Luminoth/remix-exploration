@@ -7,11 +7,14 @@ use super::*;
 use crate::bundles::ui::*;
 use crate::components::ui::*;
 use crate::components::*;
+use crate::resources::automata::*;
 use crate::resources::ui::*;
+use crate::resources::*;
 
 /// Intro setup
 pub fn setup(
     mut commands: Commands,
+    mut random: ResMut<Random>,
     ui_materials: Res<UiMaterials>,
     button_materials: Res<ButtonMaterials>,
     fonts: Res<Fonts>,
@@ -22,6 +25,13 @@ pub fn setup(
         .spawn_bundle(UiCameraBundle::default())
         .insert(UiCamera)
         .insert(Name::new("UI Camera"));
+
+    // resources
+    let player_stats = PlayerAutomataStats::new(crate::STAT_POINTS);
+    commands.insert_resource(player_stats);
+
+    let ai_stats = AIAutomataStats::new(crate::STAT_POINTS, &mut random);
+    commands.insert_resource(ai_stats);
 
     // UI
     commands

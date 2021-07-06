@@ -6,7 +6,7 @@ use bevy_inspector_egui::Inspectable;
 use crate::bundles::automata::*;
 use crate::game::stats::*;
 use crate::resources;
-use crate::{CELL_X_PIXELS, CELL_Y_PIXELS};
+use crate::resources::automata::*;
 
 /// Base automata health
 const BASE_HEALTH: isize = 10;
@@ -34,54 +34,80 @@ impl AutomataStats {
 pub struct Automata {
     /// Current HP (health)
     health: usize,
-
-    /// Is this automata the player's automata or the AI's?
-    player: bool,
 }
 
 impl Automata {
-    /// Spawn a new automata
-    pub fn spawn(
+    /// Spawn a new player automata
+    pub fn spawn_player(
         commands: &mut Commands,
-        materials: Res<resources::automata::Materials>,
-        stats: StatSet,
-        player: bool,
-        cell: Vec2,
+        materials: &resources::automata::Materials,
+        stats: PlayerAutomataStats,
+        cell: UVec2,
     ) {
-        let stats = AutomataStats::new(stats);
+        let stats = AutomataStats::new(stats.into());
 
-        let (name, material) = if player {
-            ("Player automata", materials.player_automata.clone())
-        } else {
-            ("AI automata", materials.ai_automata.clone())
-        };
-
-        let position = cell * Vec2::new(CELL_X_PIXELS, CELL_Y_PIXELS);
+        let position = Vec2::new(cell.x as f32, cell.y as f32)
+            * Vec2::new(crate::CELL_WIDTH as f32, crate::CELL_HEIGHT as f32);
         let position = position.extend(0.0);
 
         commands
             .spawn_bundle(AutomataBundle {
-                automata: Automata::new(&stats, player),
+                automata: Automata::new(&stats),
                 stats,
                 transform: Transform::from_translation(position),
                 global_transform: GlobalTransform::default(),
             })
-            .insert(Name::new(name))
+            .insert(Name::new("Player automata"))
+            .insert(PlayerAutomata)
             .with_children(|parent| {
                 parent.spawn_bundle(SpriteBundle {
-                    material,
-                    sprite: Sprite::new(Vec2::new(CELL_X_PIXELS, CELL_Y_PIXELS)),
+                    material: materials.player_automata.clone(),
+                    sprite: Sprite::new(Vec2::new(
+                        crate::CELL_WIDTH as f32,
+                        crate::CELL_HEIGHT as f32,
+                    )),
+                    ..Default::default()
+                });
+            });
+    }
+
+    /// Spawn a new AI automata
+    pub fn spawn_ai(
+        commands: &mut Commands,
+        materials: &resources::automata::Materials,
+        stats: AIAutomataStats,
+        cell: UVec2,
+    ) {
+        let stats = AutomataStats::new(stats.into());
+
+        let position = Vec2::new(cell.x as f32, cell.y as f32)
+            * Vec2::new(crate::CELL_WIDTH as f32, crate::CELL_HEIGHT as f32);
+        let position = position.extend(0.0);
+
+        commands
+            .spawn_bundle(AutomataBundle {
+                automata: Automata::new(&stats),
+                stats,
+                transform: Transform::from_translation(position),
+                global_transform: GlobalTransform::default(),
+            })
+            .insert(Name::new("AI automata"))
+            .insert(AIAutomata)
+            .with_children(|parent| {
+                parent.spawn_bundle(SpriteBundle {
+                    material: materials.ai_automata.clone(),
+                    sprite: Sprite::new(Vec2::new(
+                        crate::CELL_WIDTH as f32,
+                        crate::CELL_HEIGHT as f32,
+                    )),
                     ..Default::default()
                 });
             });
     }
 
     /// Creates a new automata component
-    pub fn new(stats: &AutomataStats, player: bool) -> Self {
-        let mut automata = Self {
-            player,
-            ..Default::default()
-        };
+    pub fn new(stats: &AutomataStats) -> Self {
+        let mut automata = Self::default();
 
         automata.reset(stats);
         automata
@@ -92,3 +118,11 @@ impl Automata {
         self.health = stats.initial_health();
     }
 }
+
+/// Player automata tag
+#[derive(Debug, Inspectable, Default)]
+pub struct PlayerAutomata;
+
+/// AI automata state
+#[derive(Debug, Inspectable, Default)]
+pub struct AIAutomata;

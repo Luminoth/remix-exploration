@@ -11,6 +11,7 @@ mod plugins;
 mod resources;
 mod states;
 mod systems;
+mod util;
 
 use bevy::diagnostic::*;
 use bevy::prelude::*;
@@ -22,19 +23,20 @@ use plugins::debug::*;
 use resources::automata::*;
 use resources::gridworld::*;
 use resources::ui::*;
+use resources::*;
 use states::*;
 
 const WINDOW_WIDTH: f32 = 1024.0;
-const WINDOW_HEIGHT: f32 = 576.0;
-const ASPECT_RATIO: f32 = WINDOW_WIDTH / WINDOW_HEIGHT;
+const WINDOW_HEIGHT: f32 = 768.0;
+//const ASPECT_RATIO: f32 = WINDOW_WIDTH / WINDOW_HEIGHT;
 
 const GRID_WIDTH: usize = 10;
 const GRID_HEIGHT: usize = 10;
 
-pub const CELL_X_PIXELS: f32 = WINDOW_WIDTH / GRID_WIDTH as f32;
-pub const CELL_Y_PIXELS: f32 = WINDOW_HEIGHT / GRID_HEIGHT as f32;
+pub const CELL_WIDTH: usize = 1;
+pub const CELL_HEIGHT: usize = 1;
 
-const STAT_POINTS: isize = 20;
+pub const STAT_POINTS: isize = 20;
 
 /// Initial setup
 fn setup(
@@ -45,12 +47,10 @@ fn setup(
     #[cfg(debug_assertions)]
     asset_server.watch_for_changes().unwrap();
 
+    let random = Random::default();
+
     let gridworld = GridWorld::new(GRID_WIDTH, GRID_HEIGHT);
     commands.insert_resource(gridworld);
-
-    // resources
-    let player_stats = PlayerAutomataStats::new(STAT_POINTS);
-    commands.insert_resource(player_stats);
 
     // assets
     let fonts = Fonts {
@@ -77,6 +77,8 @@ fn setup(
         pressed: materials.add(Color::GRAY.into()),
     };
     commands.insert_resource(button_materials);
+
+    commands.insert_resource(random);
 }
 
 /// Application entry

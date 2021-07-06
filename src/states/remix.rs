@@ -299,10 +299,12 @@ pub fn stat_modified_event_handler(
 
         for (mut helper, modifier) in modifier_query.iter_mut() {
             if modifier.r#type == event.0 {
-                if modifier.modifier > 0 {
-                    helper.interactable = stats.points > 0
-                } else if modifier.modifier < 0 {
-                    helper.interactable = stats.value(modifier.r#type) > 0
+                match modifier.modifier.cmp(&0) {
+                    std::cmp::Ordering::Less => {
+                        helper.interactable = stats.value(modifier.r#type) > 0
+                    }
+                    std::cmp::Ordering::Greater => helper.interactable = stats.points > 0,
+                    std::cmp::Ordering::Equal => (),
                 }
             }
         }
@@ -323,6 +325,7 @@ pub fn modifier_button_handler(
     mut state_modified_events: EventWriter<StatModifiedEvent>,
 ) {
     if let Ok((interaction, helper, modifier)) = modifier_query.single_mut() {
+        #[allow(clippy::collapsible_if)]
         if helper.interactable && *interaction == Interaction::Clicked {
             if stats.modify(modifier.r#type, modifier.modifier) {
                 state_modified_events.send(StatModifiedEvent(modifier.r#type));

@@ -7,6 +7,7 @@ use super::*;
 use crate::bundles::ui::*;
 use crate::components::ui::*;
 use crate::components::*;
+use crate::resources::automata::*;
 use crate::resources::ui::*;
 
 /// Game over setup
@@ -121,6 +122,9 @@ pub fn teardown(mut commands: Commands, entities: Query<Entity>) {
     for entity in entities.iter() {
         commands.entity(entity).despawn_recursive();
     }
+
+    commands.remove_resource::<PlayerAutomataStats>();
+    commands.remove_resource::<AIAutomataStats>();
 
     commands.remove_resource::<ClearColor>();
 }
