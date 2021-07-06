@@ -17,7 +17,9 @@ use bevy::prelude::*;
 use bevy_egui::{EguiPlugin, EguiSettings};
 use bevy_inspector_egui::{InspectableRegistry, WorldInspectorParams, WorldInspectorPlugin};
 
+use events::remix::*;
 use plugins::debug::*;
+use resources::automata::*;
 use resources::gridworld::*;
 use resources::ui::*;
 use states::*;
@@ -32,6 +34,8 @@ const GRID_HEIGHT: usize = 10;
 pub const CELL_X_PIXELS: f32 = WINDOW_WIDTH / GRID_WIDTH as f32;
 pub const CELL_Y_PIXELS: f32 = WINDOW_HEIGHT / GRID_HEIGHT as f32;
 
+const STAT_POINTS: isize = 20;
+
 /// Initial setup
 fn setup(
     mut commands: Commands,
@@ -44,6 +48,17 @@ fn setup(
     let gridworld = GridWorld::new(GRID_WIDTH, GRID_HEIGHT);
     commands.insert_resource(gridworld);
 
+    // resources
+    let player_stats = PlayerAutomataStats::new(STAT_POINTS);
+    commands.insert_resource(player_stats);
+
+    // assets
+    let fonts = Fonts {
+        normal: asset_server.load("fonts/FiraSans-Bold.ttf"),
+    };
+    commands.insert_resource(fonts);
+
+    // materials
     let automata_materials = resources::automata::Materials {
         player_automata: materials.add(Color::TEAL.into()),
         ai_automata: materials.add(Color::ORANGE_RED.into()),
@@ -55,15 +70,11 @@ fn setup(
     };
     commands.insert_resource(ui_materials);
 
-    let fonts = Fonts {
-        normal: asset_server.load("fonts/FiraSans-Bold.ttf"),
-    };
-    commands.insert_resource(fonts);
-
     let button_materials = ButtonMaterials {
-        normal: materials.add(Color::DARK_GRAY.into()),
-        hovered: materials.add(Color::GRAY.into()),
-        pressed: materials.add(Color::WHITE.into()),
+        disabled: materials.add(Color::DARK_GRAY.into()),
+        normal: materials.add(Color::GRAY.into()),
+        hovered: materials.add(Color::WHITE.into()),
+        pressed: materials.add(Color::GRAY.into()),
     };
     commands.insert_resource(button_materials);
 }
@@ -116,7 +127,9 @@ fn main() {
             SystemSet::on_enter(GameState::Intro).with_system(states::intro::setup.system()),
         )
         .add_system_set(
-            SystemSet::on_update(GameState::Intro).with_system(states::intro::update.system()),
+            SystemSet::on_update(GameState::Intro)
+                .with_system(systems::ui::update_buttons.system())
+                .with_system(states::intro::action_button_handler.system()),
         )
         .add_system_set(
             SystemSet::on_exit(GameState::Intro).with_system(states::intro::teardown.system()),
@@ -127,8 +140,10 @@ fn main() {
         )
         .add_system_set(
             SystemSet::on_update(GameState::Remix)
-                .with_system(states::remix::update_action.system())
-                .with_system(states::remix::update_modifier.system()),
+                .with_system(systems::ui::update_buttons.system())
+                .with_system(states::remix::modifier_button_handler.system())
+                .with_system(states::remix::action_button_handler.system())
+                .with_system(states::remix::stat_modified_event_handler.system()),
         )
         .add_system_set(
             SystemSet::on_exit(GameState::Remix).with_system(states::remix::teardown.system()),
@@ -146,12 +161,14 @@ fn main() {
         )
         .add_system_set(
             SystemSet::on_update(GameState::GameOver)
-                .with_system(states::gameover::update.system()),
+                .with_system(systems::ui::update_buttons.system())
+                .with_system(states::gameover::action_button_handler.system()),
         )
         .add_system_set(
             SystemSet::on_exit(GameState::GameOver)
                 .with_system(states::gameover::teardown.system()),
         );
+    app.add_event::<StatModifiedEvent>();
 
     // setup
     app.add_startup_system(setup.system());

@@ -13,6 +13,7 @@ pub struct Fonts {
 
 /// Button material container resource
 pub struct ButtonMaterials {
+    pub disabled: Handle<ColorMaterial>,
     pub normal: Handle<ColorMaterial>,
     pub hovered: Handle<ColorMaterial>,
     pub pressed: Handle<ColorMaterial>,

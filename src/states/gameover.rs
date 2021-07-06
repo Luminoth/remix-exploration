@@ -4,11 +4,12 @@ use bevy::prelude::*;
 
 use super::*;
 
+use crate::bundles::ui::*;
 use crate::components::ui::*;
 use crate::components::*;
 use crate::resources::ui::*;
 
-/// Intro setup
+/// Game over setup
 pub fn setup(
     mut commands: Commands,
     ui_materials: Res<UiMaterials>,
@@ -67,18 +68,21 @@ pub fn setup(
                     });
 
                     parent
-                        .spawn_bundle(ButtonBundle {
-                            style: Style {
-                                size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                                margin: Rect::all(Val::Auto),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
+                        .spawn_bundle(ActionButtonBundle {
+                            button: ButtonBundle {
+                                style: Style {
+                                    size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                                    margin: Rect::all(Val::Auto),
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    ..Default::default()
+                                },
+                                material: button_materials.normal.clone(),
                                 ..Default::default()
                             },
-                            material: button_materials.normal.clone(),
-                            ..Default::default()
+                            helper: ButtonHelper { interactable: true },
+                            action_button: ActionButton,
                         })
-                        .insert(ActionButton)
                         .with_children(|parent| {
                             parent.spawn_bundle(TextBundle {
                                 text: Text::with_section(
@@ -97,32 +101,22 @@ pub fn setup(
         });
 }
 
-pub fn update(
-    materials: Res<ButtonMaterials>,
-    mut query: Query<
-        (&Interaction, &mut Handle<ColorMaterial>),
+/// Action button handler
+pub fn action_button_handler(
+    mut action_query: Query<
+        (&Interaction, &ButtonHelper),
         (Changed<Interaction>, With<ActionButton>),
     >,
     mut state: ResMut<State<GameState>>,
 ) {
-    if let Ok((interaction, mut material)) = query.single_mut() {
-        match *interaction {
-            Interaction::Clicked => {
-                *material = materials.pressed.clone();
-
-                state.set(GameState::Remix).unwrap();
-            }
-            Interaction::Hovered => {
-                *material = materials.hovered.clone();
-            }
-            Interaction::None => {
-                *material = materials.normal.clone();
-            }
+    if let Ok((interaction, helper)) = action_query.single_mut() {
+        if helper.interactable && *interaction == Interaction::Clicked {
+            state.set(GameState::Intro).unwrap();
         }
     }
 }
 
-/// Intro teardown
+/// Game over teardown
 pub fn teardown(mut commands: Commands, entities: Query<Entity>) {
     for entity in entities.iter() {
         commands.entity(entity).despawn_recursive();

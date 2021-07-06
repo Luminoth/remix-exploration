@@ -6,7 +6,7 @@ use crate::components::*;
 use crate::resources::ui::*;
 use crate::*;
 
-/// Intro setup
+/// Game setup
 pub fn setup(mut commands: Commands, ui_materials: Res<UiMaterials>, fonts: Res<Fonts>) {
     // cameras
     let mut camera = OrthographicCameraBundle::new_2d();
@@ -70,7 +70,7 @@ pub fn setup(mut commands: Commands, ui_materials: Res<UiMaterials>, fonts: Res<
         });
 }
 
-/// Intro teardown
+/// Game teardown
 pub fn teardown(mut commands: Commands, entities: Query<Entity>) {
     for entity in entities.iter() {
         commands.entity(entity).despawn_recursive();
