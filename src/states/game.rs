@@ -43,7 +43,8 @@ pub fn setup(
         .spawn_bundle(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                justify_content: JustifyContent::SpaceBetween,
+                flex_direction: FlexDirection::ColumnReverse,
+                align_items: AlignItems::FlexStart,
                 ..Default::default()
             },
             material: ui_materials.none.clone(),
@@ -51,13 +52,12 @@ pub fn setup(
         })
         .insert(Name::new("UI Root"))
         .with_children(|parent| {
+            // TODO:
             parent
                 .spawn_bundle(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                        position_type: PositionType::Absolute,
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::FlexEnd,
+                        size: Size::new(Val::Auto, Val::Auto),
+                        align_items: AlignItems::FlexStart,
                         ..Default::default()
                     },
                     material: ui_materials.none.clone(),

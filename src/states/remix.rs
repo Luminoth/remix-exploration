@@ -31,7 +31,8 @@ pub fn setup(
         .spawn_bundle(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                justify_content: JustifyContent::SpaceBetween,
+                flex_direction: FlexDirection::ColumnReverse,
+                align_items: AlignItems::Center,
                 ..Default::default()
             },
             material: ui_materials.none.clone(),
@@ -39,19 +40,36 @@ pub fn setup(
         })
         .insert(Name::new("UI Root"))
         .with_children(|parent| {
+            // header
+            parent.spawn_bundle(TextBundle {
+                style: Style {
+                    margin: Rect::all(Val::Px(5.0)),
+                    ..Default::default()
+                },
+                text: Text::with_section(
+                    "Remix Your Automaton",
+                    TextStyle {
+                        font: fonts.normal.clone(),
+                        font_size: 30.0,
+                        color: Color::WHITE,
+                    },
+                    Default::default(),
+                ),
+                ..Default::default()
+            });
+
+            // remaining points
             parent
                 .spawn_bundle(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                        position_type: PositionType::Absolute,
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::FlexEnd,
+                        size: Size::new(Val::Auto, Val::Auto),
+                        align_items: AlignItems::Center,
                         ..Default::default()
                     },
                     material: ui_materials.none.clone(),
                     ..Default::default()
                 })
-                .insert(Name::new("Instructions"))
+                .insert(Name::new("Stat Points"))
                 .with_children(|parent| {
                     parent.spawn_bundle(TextBundle {
                         style: Style {
@@ -59,10 +77,10 @@ pub fn setup(
                             ..Default::default()
                         },
                         text: Text::with_section(
-                            "Remix Your Automaton",
+                            "Remaining Stat Points: ",
                             TextStyle {
                                 font: fonts.normal.clone(),
-                                font_size: 30.0,
+                                font_size: 24.0,
                                 color: Color::WHITE,
                             },
                             Default::default(),
@@ -77,10 +95,10 @@ pub fn setup(
                                 ..Default::default()
                             },
                             text: Text::with_section(
-                                format!("Points: {}", player_stats.points),
+                                format!("{}", player_stats.points),
                                 TextStyle {
                                     font: fonts.normal.clone(),
-                                    font_size: 30.0,
+                                    font_size: 24.0,
                                     color: Color::WHITE,
                                 },
                                 Default::default(),
@@ -89,158 +107,169 @@ pub fn setup(
                         },
                         points_text: PointsText,
                     });
+                });
+
+            // fortitude stat
+            parent
+                .spawn_bundle(NodeBundle {
+                    style: Style {
+                        size: Size::new(Val::Auto, Val::Auto),
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    material: ui_materials.none.clone(),
+                    ..Default::default()
+                })
+                .insert(Name::new("Fortitude"))
+                .with_children(|parent| {
+                    parent.spawn_bundle(TextBundle {
+                        style: Style {
+                            margin: Rect::all(Val::Px(5.0)),
+                            ..Default::default()
+                        },
+                        text: Text::with_section(
+                            "Fortitude: ",
+                            TextStyle {
+                                font: fonts.normal.clone(),
+                                font_size: 14.0,
+                                color: Color::WHITE,
+                            },
+                            Default::default(),
+                        ),
+                        ..Default::default()
+                    });
+
+                    parent.spawn_bundle(StatModifierTextBundle {
+                        text: TextBundle {
+                            style: Style {
+                                margin: Rect::all(Val::Px(5.0)),
+                                ..Default::default()
+                            },
+                            text: Text::with_section(
+                                format!("{}", player_stats.fortitude),
+                                TextStyle {
+                                    font: fonts.normal.clone(),
+                                    font_size: 14.0,
+                                    color: Color::WHITE,
+                                },
+                                Default::default(),
+                            ),
+                            ..Default::default()
+                        },
+                        modifier_text: StatModifierText {
+                            r#type: StatModifierType::Fortitude,
+                        },
+                    });
 
                     parent
                         .spawn_bundle(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                                position_type: PositionType::Absolute,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::FlexEnd,
+                                size: Size::new(Val::Auto, Val::Auto),
+                                flex_direction: FlexDirection::ColumnReverse,
+                                align_items: AlignItems::Center,
                                 ..Default::default()
                             },
                             material: ui_materials.none.clone(),
                             ..Default::default()
                         })
+                        .insert(Name::new("Modifier Buttons"))
                         .with_children(|parent| {
                             parent
-                                .spawn_bundle(NodeBundle {
-                                    style: Style {
-                                        size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                                        position_type: PositionType::Absolute,
-                                        justify_content: JustifyContent::Center,
-                                        align_items: AlignItems::FlexEnd,
+                                .spawn_bundle(StatModifierButtonBundle {
+                                    button: ButtonBundle {
+                                        style: Style {
+                                            size: Size::new(Val::Px(15.0), Val::Px(15.0)),
+                                            margin: Rect::all(Val::Auto),
+                                            justify_content: JustifyContent::Center,
+                                            align_items: AlignItems::Center,
+                                            ..Default::default()
+                                        },
+                                        material: button_materials.normal.clone(),
                                         ..Default::default()
                                     },
-                                    material: ui_materials.none.clone(),
-                                    ..Default::default()
+                                    helper: ButtonHelper { interactable: true },
+                                    modifier_button: StatModifierButton {
+                                        r#type: StatModifierType::Fortitude,
+                                        modifier: 1,
+                                    },
                                 })
                                 .with_children(|parent| {
                                     parent.spawn_bundle(TextBundle {
-                                        style: Style {
-                                            margin: Rect::all(Val::Px(5.0)),
-                                            ..Default::default()
-                                        },
                                         text: Text::with_section(
-                                            "Fortitude",
+                                            "^",
                                             TextStyle {
                                                 font: fonts.normal.clone(),
-                                                font_size: 14.0,
-                                                color: Color::WHITE,
+                                                font_size: 12.0,
+                                                color: Color::rgb(0.9, 0.9, 0.9),
                                             },
                                             Default::default(),
                                         ),
                                         ..Default::default()
                                     });
-
-                                    parent.spawn_bundle(StatModifierTextBundle {
-                                        text: TextBundle {
-                                            style: Style {
-                                                margin: Rect::all(Val::Px(5.0)),
-                                                ..Default::default()
-                                            },
-                                            text: Text::with_section(
-                                                format!("{}", player_stats.fortitude),
-                                                TextStyle {
-                                                    font: fonts.normal.clone(),
-                                                    font_size: 12.0,
-                                                    color: Color::WHITE,
-                                                },
-                                                Default::default(),
-                                            ),
-                                            ..Default::default()
-                                        },
-                                        modifier_text: StatModifierText {
-                                            r#type: StatModifierType::Fortitude,
-                                        },
-                                    });
                                 });
 
                             parent
-                                .spawn_bundle(NodeBundle {
-                                    style: Style {
-                                        size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                                        position_type: PositionType::Absolute,
-                                        justify_content: JustifyContent::Center,
-                                        align_items: AlignItems::FlexEnd,
+                                .spawn_bundle(StatModifierButtonBundle {
+                                    button: ButtonBundle {
+                                        style: Style {
+                                            size: Size::new(Val::Px(15.0), Val::Px(15.0)),
+                                            margin: Rect::all(Val::Auto),
+                                            justify_content: JustifyContent::Center,
+                                            align_items: AlignItems::Center,
+                                            ..Default::default()
+                                        },
+                                        material: button_materials.disabled.clone(),
                                         ..Default::default()
                                     },
-                                    material: ui_materials.none.clone(),
-                                    ..Default::default()
+                                    helper: ButtonHelper {
+                                        interactable: false,
+                                    },
+                                    modifier_button: StatModifierButton {
+                                        r#type: StatModifierType::Fortitude,
+                                        modifier: -1,
+                                    },
                                 })
                                 .with_children(|parent| {
-                                    parent
-                                        .spawn_bundle(StatModifierButtonBundle {
-                                            button: ButtonBundle {
-                                                style: Style {
-                                                    size: Size::new(Val::Px(15.0), Val::Px(15.0)),
-                                                    margin: Rect::all(Val::Auto),
-                                                    justify_content: JustifyContent::Center,
-                                                    align_items: AlignItems::Center,
-                                                    ..Default::default()
-                                                },
-                                                material: button_materials.normal.clone(),
-                                                ..Default::default()
+                                    parent.spawn_bundle(TextBundle {
+                                        text: Text::with_section(
+                                            "v",
+                                            TextStyle {
+                                                font: fonts.normal.clone(),
+                                                font_size: 12.0,
+                                                color: Color::rgb(0.9, 0.9, 0.9),
                                             },
-                                            helper: ButtonHelper { interactable: true },
-                                            modifier_button: StatModifierButton {
-                                                r#type: StatModifierType::Fortitude,
-                                                modifier: 1,
-                                            },
-                                        })
-                                        .with_children(|parent| {
-                                            parent.spawn_bundle(TextBundle {
-                                                text: Text::with_section(
-                                                    "^",
-                                                    TextStyle {
-                                                        font: fonts.normal.clone(),
-                                                        font_size: 12.0,
-                                                        color: Color::rgb(0.9, 0.9, 0.9),
-                                                    },
-                                                    Default::default(),
-                                                ),
-                                                ..Default::default()
-                                            });
-                                        });
-
-                                    parent
-                                        .spawn_bundle(StatModifierButtonBundle {
-                                            button: ButtonBundle {
-                                                style: Style {
-                                                    size: Size::new(Val::Px(15.0), Val::Px(15.0)),
-                                                    margin: Rect::all(Val::Auto),
-                                                    justify_content: JustifyContent::Center,
-                                                    align_items: AlignItems::Center,
-                                                    ..Default::default()
-                                                },
-                                                material: button_materials.disabled.clone(),
-                                                ..Default::default()
-                                            },
-                                            helper: ButtonHelper {
-                                                interactable: false,
-                                            },
-                                            modifier_button: StatModifierButton {
-                                                r#type: StatModifierType::Fortitude,
-                                                modifier: -1,
-                                            },
-                                        })
-                                        .with_children(|parent| {
-                                            parent.spawn_bundle(TextBundle {
-                                                text: Text::with_section(
-                                                    "v",
-                                                    TextStyle {
-                                                        font: fonts.normal.clone(),
-                                                        font_size: 12.0,
-                                                        color: Color::rgb(0.9, 0.9, 0.9),
-                                                    },
-                                                    Default::default(),
-                                                ),
-                                                ..Default::default()
-                                            });
-                                        });
+                                            Default::default(),
+                                        ),
+                                        ..Default::default()
+                                    });
                                 });
                         });
+                });
 
+            // spacer
+            parent.spawn_bundle(NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Auto, Val::Auto),
+                    flex_grow: 1.0,
+                    ..Default::default()
+                },
+                material: ui_materials.none.clone(),
+                ..Default::default()
+            });
+
+            // actions
+            parent
+                .spawn_bundle(NodeBundle {
+                    style: Style {
+                        size: Size::new(Val::Auto, Val::Auto),
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    material: ui_materials.none.clone(),
+                    ..Default::default()
+                })
+                .insert(Name::new("Actions"))
+                .with_children(|parent| {
                     parent
                         .spawn_bundle(ActionButtonBundle {
                             button: ButtonBundle {
@@ -262,7 +291,7 @@ pub fn setup(
                         .with_children(|parent| {
                             parent.spawn_bundle(TextBundle {
                                 text: Text::with_section(
-                                    "Run Simulation",
+                                    "Run",
                                     TextStyle {
                                         font: fonts.normal.clone(),
                                         font_size: 40.0,
@@ -294,7 +323,7 @@ pub fn stat_modified_event_handler(
         }
 
         if let Ok(mut text) = points_text_query.single_mut() {
-            text.sections[0].value = format!("Points: {}", stats.points);
+            text.sections[0].value = format!("{}", stats.points);
         }
 
         for (mut helper, modifier) in modifier_query.iter_mut() {
