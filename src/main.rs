@@ -18,8 +18,9 @@ use bevy::prelude::*;
 use bevy_egui::{EguiPlugin, EguiSettings};
 use bevy_inspector_egui::{InspectableRegistry, WorldInspectorParams, WorldInspectorPlugin};
 
-use events::remix::*;
 use plugins::debug::*;
+use plugins::states::*;
+use plugins::ui::*;
 use resources::automata::*;
 use resources::gridworld::*;
 use resources::ui::*;
@@ -120,59 +121,14 @@ fn main() {
     .add_plugin(WorldInspectorPlugin::new());
 
     // plugins
-    app.add_plugin(DebugPlugin);
+    app.add_plugin(DebugPlugin)
+        .add_plugin(UIPlugin)
+        .add_plugins(StatesPlugins);
 
-    // game states
-    app.add_state(GameState::Intro)
-        // intro state systems
-        .add_system_set(
-            SystemSet::on_enter(GameState::Intro).with_system(states::intro::setup.system()),
-        )
-        .add_system_set(
-            SystemSet::on_update(GameState::Intro)
-                .with_system(systems::ui::update_buttons.system())
-                .with_system(states::intro::action_button_handler.system()),
-        )
-        .add_system_set(
-            SystemSet::on_exit(GameState::Intro).with_system(states::intro::teardown.system()),
-        )
-        // remix state systems
-        .add_system_set(
-            SystemSet::on_enter(GameState::Remix).with_system(states::remix::setup.system()),
-        )
-        .add_system_set(
-            SystemSet::on_update(GameState::Remix)
-                .with_system(systems::ui::update_buttons.system())
-                .with_system(states::remix::modifier_button_handler.system())
-                .with_system(states::remix::action_button_handler.system())
-                .with_system(states::remix::stat_modified_event_handler.system()),
-        )
-        .add_system_set(
-            SystemSet::on_exit(GameState::Remix).with_system(states::remix::teardown.system()),
-        )
-        // game state systems
-        .add_system_set(
-            SystemSet::on_enter(GameState::Game).with_system(states::game::setup.system()),
-        )
-        .add_system_set(
-            SystemSet::on_exit(GameState::Game).with_system(states::game::teardown.system()),
-        )
-        // game over state systems
-        .add_system_set(
-            SystemSet::on_enter(GameState::GameOver).with_system(states::gameover::setup.system()),
-        )
-        .add_system_set(
-            SystemSet::on_update(GameState::GameOver)
-                .with_system(systems::ui::update_buttons.system())
-                .with_system(states::gameover::action_button_handler.system()),
-        )
-        .add_system_set(
-            SystemSet::on_exit(GameState::GameOver)
-                .with_system(states::gameover::teardown.system()),
-        );
-    app.add_event::<StatModifiedEvent>();
+    // initial game state
+    app.add_state(GameState::Intro);
 
-    // setup
+    // main setup
     app.add_startup_system(setup.system());
 
     // register components for inspector
@@ -183,6 +139,18 @@ fn main() {
     registry.register::<components::MainCamera>();
     registry.register::<components::UiCamera>();
     registry.register::<components::automata::Automata>();
+    registry.register::<components::automata::AutomataStats>();
+    registry.register::<components::automata::PlayerAutomata>();
+    registry.register::<components::automata::AIAutomata>();
+    registry.register::<components::gridworld::GridWorldCell>();
+    registry.register::<components::ui::ButtonHelper>();
+    registry.register::<components::ui::ActionButton>();
+    registry.register::<components::ui::StatModifierButton>();
+    registry.register::<components::ui::PointsText>();
+    registry.register::<components::ui::StatModifierText>();
+    registry.register::<game::stats::Stat>();
+    registry.register::<game::stats::StatSet>();
+    registry.register::<resources::automata::StatModifierType>();
 
     app.run();
 }

@@ -5,6 +5,7 @@ use bevy::prelude::*;
 use crate::events::debug::*;
 use crate::systems::debug::*;
 
+/// Debug plugin
 pub struct DebugPlugin;
 
 impl Plugin for DebugPlugin {

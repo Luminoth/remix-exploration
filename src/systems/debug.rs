@@ -78,9 +78,6 @@ pub fn debug_ui(
             if ui.button("Inspector").clicked() {
                 inspector.enabled = !inspector.enabled;
             }
-
-            // TODO: buttons to spawn creatures would be cool
-            // but we need a way to say *where* to spawn them I think?
         });
     });
 }

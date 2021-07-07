@@ -37,15 +37,13 @@ pub struct Automata {
 }
 
 impl Automata {
-    /// Spawn a new player automata
-    pub fn spawn_player(
+    fn spawn(
         commands: &mut Commands,
-        materials: &resources::automata::Materials,
-        stats: PlayerAutomataStats,
+        stats: AutomataStats,
         cell: UVec2,
-    ) {
-        let stats = AutomataStats::new(stats.into());
-
+        material: Handle<ColorMaterial>,
+        name: impl Into<String>,
+    ) -> Entity {
         let position = Vec2::new(cell.x as f32, cell.y as f32)
             * Vec2::new(crate::CELL_WIDTH as f32, crate::CELL_HEIGHT as f32);
         let position = position.extend(0.0);
@@ -57,18 +55,37 @@ impl Automata {
                 transform: Transform::from_translation(position),
                 global_transform: GlobalTransform::default(),
             })
-            .insert(Name::new("Player automata"))
-            .insert(PlayerAutomata)
+            .insert(Name::new(name.into()))
             .with_children(|parent| {
                 parent.spawn_bundle(SpriteBundle {
-                    material: materials.player_automata.clone(),
+                    material,
                     sprite: Sprite::new(Vec2::new(
                         crate::CELL_WIDTH as f32,
                         crate::CELL_HEIGHT as f32,
                     )),
                     ..Default::default()
                 });
-            });
+            })
+            .id()
+    }
+
+    /// Spawn a new player automata
+    pub fn spawn_player(
+        commands: &mut Commands,
+        materials: &resources::automata::Materials,
+        stats: PlayerAutomataStats,
+        cell: UVec2,
+    ) {
+        let stats = AutomataStats::new(stats.into());
+
+        let entity = Automata::spawn(
+            commands,
+            stats,
+            cell,
+            materials.player_automata.clone(),
+            "Player automata",
+        );
+        commands.entity(entity).insert(PlayerAutomata);
     }
 
     /// Spawn a new AI automata
@@ -80,29 +97,14 @@ impl Automata {
     ) {
         let stats = AutomataStats::new(stats.into());
 
-        let position = Vec2::new(cell.x as f32, cell.y as f32)
-            * Vec2::new(crate::CELL_WIDTH as f32, crate::CELL_HEIGHT as f32);
-        let position = position.extend(0.0);
-
-        commands
-            .spawn_bundle(AutomataBundle {
-                automata: Automata::new(&stats),
-                stats,
-                transform: Transform::from_translation(position),
-                global_transform: GlobalTransform::default(),
-            })
-            .insert(Name::new("AI automata"))
-            .insert(AIAutomata)
-            .with_children(|parent| {
-                parent.spawn_bundle(SpriteBundle {
-                    material: materials.ai_automata.clone(),
-                    sprite: Sprite::new(Vec2::new(
-                        crate::CELL_WIDTH as f32,
-                        crate::CELL_HEIGHT as f32,
-                    )),
-                    ..Default::default()
-                });
-            });
+        let entity = Automata::spawn(
+            commands,
+            stats,
+            cell,
+            materials.ai_automata.clone(),
+            "AI automata",
+        );
+        commands.entity(entity).insert(AIAutomata);
     }
 
     /// Creates a new automata component
