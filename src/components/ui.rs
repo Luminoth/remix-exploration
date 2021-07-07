@@ -30,3 +30,9 @@ pub struct PointsText;
 pub struct StatModifierText {
     pub r#type: StatModifierType,
 }
+
+/// Cell selection tag
+pub struct CellSelection;
+
+/// HUD tag
+pub struct HUD;

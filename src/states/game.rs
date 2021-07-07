@@ -2,7 +2,8 @@
 
 use bevy::prelude::*;
 
-use crate::components::automata::*;
+//use crate::components::automata::*;
+use crate::components::ui::*;
 use crate::components::*;
 use crate::resources::ui::*;
 use crate::*;
@@ -13,9 +14,9 @@ use crate::*;
 /// Game setup
 pub fn setup(
     mut commands: Commands,
-    player_stats: Res<PlayerAutomataStats>,
-    ai_stats: Res<AIAutomataStats>,
-    materials: Res<Materials>,
+    //player_stats: Res<PlayerAutomataStats>,
+    //ai_stats: Res<AIAutomataStats>,
+    //materials: Res<Materials>,
     ui_materials: Res<UiMaterials>,
     fonts: Res<Fonts>,
 ) {
@@ -35,10 +36,10 @@ pub fn setup(
         .insert(Name::new("UI Camera"));
 
     // spawn automata
-    Automata::spawn_player(&mut commands, &materials, *player_stats, UVec2::new(0, 0));
-    Automata::spawn_ai(&mut commands, &materials, *ai_stats, UVec2::new(1, 1));
+    //Automata::spawn_player(&mut commands, &materials, *player_stats, UVec2::new(0, 0));
+    //Automata::spawn_ai(&mut commands, &materials, *ai_stats, UVec2::new(1, 1));
 
-    // UI
+    // cell selection UI
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
@@ -50,6 +51,7 @@ pub fn setup(
             material: ui_materials.none.clone(),
             ..Default::default()
         })
+        .insert(CellSelection)
         .insert(Name::new("UI Root"))
         .with_children(|parent| {
             // TODO:
@@ -61,6 +63,61 @@ pub fn setup(
                         ..Default::default()
                     },
                     material: ui_materials.none.clone(),
+                    ..Default::default()
+                })
+                .insert(Name::new("Cell Selection"))
+                .with_children(|parent| {
+                    parent.spawn_bundle(TextBundle {
+                        style: Style {
+                            margin: Rect::all(Val::Px(5.0)),
+                            ..Default::default()
+                        },
+                        text: Text::with_section(
+                            "Select a cell for your automaton",
+                            TextStyle {
+                                font: fonts.normal.clone(),
+                                font_size: 30.0,
+                                color: Color::WHITE,
+                            },
+                            Default::default(),
+                        ),
+                        ..Default::default()
+                    });
+                });
+        });
+
+    // HUD UI
+    commands
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                flex_direction: FlexDirection::ColumnReverse,
+                align_items: AlignItems::FlexStart,
+                ..Default::default()
+            },
+            material: ui_materials.none.clone(),
+            visible: Visible {
+                is_visible: false,
+                ..Default::default()
+            },
+            ..Default::default()
+        })
+        .insert(HUD)
+        .insert(Name::new("UI Root"))
+        .with_children(|parent| {
+            // TODO:
+            parent
+                .spawn_bundle(NodeBundle {
+                    style: Style {
+                        size: Size::new(Val::Auto, Val::Auto),
+                        align_items: AlignItems::FlexStart,
+                        ..Default::default()
+                    },
+                    material: ui_materials.none.clone(),
+                    visible: Visible {
+                        is_visible: false,
+                        ..Default::default()
+                    },
                     ..Default::default()
                 })
                 .insert(Name::new("HUD"))
@@ -79,6 +136,10 @@ pub fn setup(
                             },
                             Default::default(),
                         ),
+                        visible: Visible {
+                            is_visible: false,
+                            ..Default::default()
+                        },
                         ..Default::default()
                     });
                 });
