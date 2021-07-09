@@ -8,7 +8,6 @@ use crate::components::automata::*;
 #[derive(Bundle)]
 pub struct AutomataBundle {
     pub automata: Automata,
-    pub stats: AutomataStats,
 
     pub transform: Transform,
     pub global_transform: GlobalTransform,

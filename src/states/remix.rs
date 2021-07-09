@@ -95,7 +95,7 @@ pub fn setup(
                                 ..Default::default()
                             },
                             text: Text::with_section(
-                                format!("{}", player_stats.points),
+                                format!("{}", player_stats.points()),
                                 TextStyle {
                                     font: fonts.normal.clone(),
                                     font_size: 24.0,
@@ -146,7 +146,7 @@ pub fn setup(
                                 ..Default::default()
                             },
                             text: Text::with_section(
-                                format!("{}", player_stats.fortitude),
+                                format!("{}", player_stats.stats().fortitude()),
                                 TextStyle {
                                     font: fonts.normal.clone(),
                                     font_size: 14.0,
@@ -323,7 +323,7 @@ pub fn stat_modified_event_handler(
         }
 
         if let Ok(mut text) = points_text_query.single_mut() {
-            text.sections[0].value = format!("{}", stats.points);
+            text.sections[0].value = format!("{}", stats.points());
         }
 
         for (mut helper, modifier) in modifier_query.iter_mut() {
@@ -332,14 +332,14 @@ pub fn stat_modified_event_handler(
                     std::cmp::Ordering::Less => {
                         helper.interactable = stats.value(modifier.r#type) > 0
                     }
-                    std::cmp::Ordering::Greater => helper.interactable = stats.points > 0,
+                    std::cmp::Ordering::Greater => helper.interactable = stats.points() > 0,
                     std::cmp::Ordering::Equal => (),
                 }
             }
         }
 
         if let Ok(mut action_helper) = action_query.single_mut() {
-            action_helper.interactable = stats.points == 0;
+            action_helper.interactable = stats.points() == 0;
         }
     }
 }

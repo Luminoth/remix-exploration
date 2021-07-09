@@ -3,6 +3,8 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
+use crate::game::dna::*;
+use crate::game::stats::*;
 use crate::resources::*;
 
 /// Which stat should be modified
@@ -11,12 +13,55 @@ pub enum StatModifierType {
     Fortitude,
 }
 
+pub trait AutomataStats {
+    /// Gets the automata stat set
+    fn stats(&self) -> &StatSet;
+
+    /// Modifies a stat by amount
+    fn modify(&mut self, r#type: StatModifierType, amount: isize) -> bool;
+}
+
+// TODO: this would be less awkward as a macro
+fn modify_stat(
+    r#type: StatModifierType,
+    amount: isize,
+    points: &mut isize,
+    stats: &mut StatSet,
+) -> bool {
+    if *points - amount < 0 {
+        return false;
+    }
+
+    match r#type {
+        StatModifierType::Fortitude => {
+            if stats.fortitude() + amount < 0 {
+                return false;
+            }
+            stats.set_fortitude(stats.fortitude() + amount);
+        }
+    }
+
+    *points -= amount;
+
+    true
+}
+
 /// Player automata stats
 #[derive(Debug, Default, Clone, Copy)]
 pub struct PlayerAutomataStats {
-    pub points: isize,
+    points: isize,
 
-    pub fortitude: isize,
+    pub stats: StatSet,
+}
+
+impl AutomataStats for PlayerAutomataStats {
+    fn stats(&self) -> &StatSet {
+        &self.stats
+    }
+
+    fn modify(&mut self, r#type: StatModifierType, amount: isize) -> bool {
+        modify_stat(r#type, amount, &mut self.points, &mut self.stats)
+    }
 }
 
 impl PlayerAutomataStats {
@@ -28,40 +73,35 @@ impl PlayerAutomataStats {
         }
     }
 
+    /// Gets the number of unspent points
+    pub fn points(&self) -> isize {
+        self.points
+    }
+
     /// Gets the value of a stat
     pub fn value(&self, r#type: StatModifierType) -> isize {
         match r#type {
-            StatModifierType::Fortitude => self.fortitude,
+            StatModifierType::Fortitude => self.stats.fortitude(),
         }
-    }
-
-    /// Modifies a stat by amount
-    pub fn modify(&mut self, r#type: StatModifierType, amount: isize) -> bool {
-        if self.points - amount < 0 {
-            return false;
-        }
-
-        match r#type {
-            StatModifierType::Fortitude => {
-                if self.fortitude + amount < 0 {
-                    return false;
-                }
-                self.fortitude += amount;
-            }
-        }
-
-        self.points -= amount;
-
-        true
     }
 }
 
 /// AI automata stats
 #[derive(Debug, Default, Clone, Copy)]
 pub struct AIAutomataStats {
-    pub points: isize,
+    points: isize,
 
-    pub fortitude: isize,
+    pub stats: StatSet,
+}
+
+impl AutomataStats for AIAutomataStats {
+    fn stats(&self) -> &StatSet {
+        &self.stats
+    }
+
+    fn modify(&mut self, r#type: StatModifierType, amount: isize) -> bool {
+        modify_stat(r#type, amount, &mut self.points, &mut self.stats)
+    }
 }
 
 impl AIAutomataStats {
@@ -87,25 +127,30 @@ impl AIAutomataStats {
 
         stats
     }
+}
 
-    /// Modifies a stat by amount
-    fn modify(&mut self, r#type: StatModifierType, amount: isize) -> bool {
-        if self.points - amount < 0 {
-            return false;
+/// AI automata population
+#[derive(Debug)]
+pub struct AIAutomataPopulation {
+    mutation_rate: f64,
+
+    population: Vec<AIAutomataStats>,
+    mating_pool: Vec<DNA>,
+}
+
+impl AIAutomataPopulation {
+    /// Creates a new randomized population
+    pub fn new(mutation_rate: f64, rounds: usize, points: isize, random: &mut Random) -> Self {
+        let mut population = Vec::with_capacity(rounds);
+        for _ in 0..population.capacity() {
+            population.push(AIAutomataStats::new(points, random));
         }
 
-        match r#type {
-            StatModifierType::Fortitude => {
-                if self.fortitude + amount < 0 {
-                    return false;
-                }
-                self.fortitude += amount;
-            }
+        Self {
+            mutation_rate,
+            population,
+            mating_pool: vec![],
         }
-
-        self.points -= amount;
-
-        true
     }
 }
 

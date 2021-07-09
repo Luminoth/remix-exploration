@@ -21,7 +21,6 @@ use bevy_inspector_egui::{InspectableRegistry, WorldInspectorParams, WorldInspec
 use plugins::debug::*;
 use plugins::states::*;
 use plugins::ui::*;
-use resources::automata::*;
 use resources::gridworld::*;
 use resources::ui::*;
 use resources::*;
@@ -37,6 +36,7 @@ const GRID_HEIGHT: usize = 10;
 pub const CELL_WIDTH: usize = 1;
 pub const CELL_HEIGHT: usize = 1;
 
+pub const ROUNDS: usize = 10;
 pub const STAT_POINTS: isize = 20;
 
 /// Initial setup
@@ -139,7 +139,6 @@ fn main() {
     registry.register::<components::MainCamera>();
     registry.register::<components::UiCamera>();
     registry.register::<components::automata::Automata>();
-    registry.register::<components::automata::AutomataStats>();
     registry.register::<components::automata::PlayerAutomata>();
     registry.register::<components::automata::AIAutomata>();
     registry.register::<components::gridworld::GridWorldCell>();
@@ -150,6 +149,7 @@ fn main() {
     registry.register::<components::ui::StatModifierText>();
     registry.register::<game::stats::Stat>();
     registry.register::<game::stats::StatSet>();
+    registry.register::<game::dna::DNA>();
     registry.register::<resources::automata::StatModifierType>();
 
     app.run();

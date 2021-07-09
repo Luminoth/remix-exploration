@@ -7,6 +7,7 @@ use super::*;
 use crate::bundles::ui::*;
 use crate::components::ui::*;
 use crate::components::*;
+use crate::game::dna::MUTATION_RATE;
 use crate::resources::automata::*;
 use crate::resources::ui::*;
 use crate::resources::*;
@@ -30,8 +31,13 @@ pub fn setup(
     let player_stats = PlayerAutomataStats::new(crate::STAT_POINTS);
     commands.insert_resource(player_stats);
 
-    let ai_stats = AIAutomataStats::new(crate::STAT_POINTS, &mut random);
-    commands.insert_resource(ai_stats);
+    let ai_population = AIAutomataPopulation::new(
+        MUTATION_RATE,
+        crate::ROUNDS,
+        crate::STAT_POINTS,
+        &mut random,
+    );
+    commands.insert_resource(ai_population);
 
     // UI
     commands

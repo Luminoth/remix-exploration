@@ -136,7 +136,7 @@ pub fn teardown(mut commands: Commands, entities: Query<Entity>) {
     }
 
     commands.remove_resource::<PlayerAutomataStats>();
-    commands.remove_resource::<AIAutomataStats>();
+    commands.remove_resource::<AIAutomataPopulation>();
 
     commands.remove_resource::<ClearColor>();
 }

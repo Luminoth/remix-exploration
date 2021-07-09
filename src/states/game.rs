@@ -14,11 +14,12 @@ use crate::*;
 /// Game setup
 pub fn setup(
     mut commands: Commands,
-    //player_stats: Res<PlayerAutomataStats>,
-    //ai_stats: Res<AIAutomataStats>,
-    //materials: Res<Materials>,
+    /*player_stats: Res<PlayerAutomataStats>,
+    ai_stats: Res<AIAutomataStats>,
+    materials: Res<Materials>,*/
     ui_materials: Res<UiMaterials>,
     fonts: Res<Fonts>,
+    //mut random: ResMut<Random>,
 ) {
     // cameras
     let mut camera = OrthographicCameraBundle::new_2d();
@@ -36,8 +37,16 @@ pub fn setup(
         .insert(Name::new("UI Camera"));
 
     // spawn automata
-    //Automata::spawn_player(&mut commands, &materials, *player_stats, UVec2::new(0, 0));
-    //Automata::spawn_ai(&mut commands, &materials, *ai_stats, UVec2::new(1, 1));
+    /*Automata::spawn_player(&mut commands, &materials, *player_stats, UVec2::new(0, 0));
+    Automata::spawn_ai(
+        &mut commands,
+        &materials,
+        *ai_stats,
+        UVec2::new(1, 1),
+        ROUNDS,
+        STAT_POINTS,
+        &mut random,
+    );*/
 
     // cell selection UI
     commands

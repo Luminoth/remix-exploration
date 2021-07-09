@@ -4,30 +4,9 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use crate::bundles::automata::*;
-use crate::game::stats::*;
 use crate::resources;
 use crate::resources::automata::*;
-
-/// Base automata health
-const BASE_HEALTH: isize = 10;
-
-/// Automata stats
-#[derive(Debug, Inspectable, Default)]
-pub struct AutomataStats {
-    stats: StatSet,
-}
-
-impl AutomataStats {
-    /// Creates a new automata stats component
-    pub fn new(stats: StatSet) -> Self {
-        Self { stats }
-    }
-
-    /// Gets the automata initial health, based on Fortitude stat
-    pub fn initial_health(&self) -> usize {
-        (BASE_HEALTH + self.stats.fortitude()).max(1) as usize
-    }
-}
+use crate::resources::*;
 
 /// Automata state
 #[derive(Debug, Inspectable, Default)]
@@ -39,7 +18,6 @@ pub struct Automata {
 impl Automata {
     fn spawn(
         commands: &mut Commands,
-        stats: AutomataStats,
         cell: UVec2,
         material: Handle<ColorMaterial>,
         name: impl Into<String>,
@@ -50,8 +28,7 @@ impl Automata {
 
         commands
             .spawn_bundle(AutomataBundle {
-                automata: Automata::new(&stats),
-                stats,
+                automata: Automata::default(),
                 transform: Transform::from_translation(position),
                 global_transform: GlobalTransform::default(),
             })
@@ -76,48 +53,34 @@ impl Automata {
         stats: PlayerAutomataStats,
         cell: UVec2,
     ) {
-        let stats = AutomataStats::new(stats.into());
-
         let entity = Automata::spawn(
             commands,
-            stats,
             cell,
             materials.player_automata.clone(),
             "Player automata",
         );
+
         commands.entity(entity).insert(PlayerAutomata);
     }
 
-    /// Spawn a new AI automata
+    /// Spawn a new AI automata population
     pub fn spawn_ai(
         commands: &mut Commands,
         materials: &resources::automata::Materials,
         stats: AIAutomataStats,
         cell: UVec2,
+        rounds: usize,
+        points: isize,
+        random: &mut Random,
     ) {
-        let stats = AutomataStats::new(stats.into());
+        let entity = Automata::spawn(commands, cell, materials.ai_automata.clone(), "AI automata");
 
-        let entity = Automata::spawn(
-            commands,
-            stats,
-            cell,
-            materials.ai_automata.clone(),
-            "AI automata",
-        );
         commands.entity(entity).insert(AIAutomata);
     }
 
-    /// Creates a new automata component
-    pub fn new(stats: &AutomataStats) -> Self {
-        let mut automata = Self::default();
-
-        automata.reset(stats);
-        automata
-    }
-
     /// Resets an automata to its initial state
-    pub fn reset(&mut self, stats: &AutomataStats) {
-        self.health = stats.initial_health();
+    pub fn reset(&mut self, stats: &dyn AutomataStats) {
+        self.health = stats.stats().initial_health();
     }
 }
 
@@ -126,5 +89,5 @@ impl Automata {
 pub struct PlayerAutomata;
 
 /// AI automata state
-#[derive(Debug, Inspectable, Default)]
+#[derive(Debug, Inspectable)]
 pub struct AIAutomata;
