@@ -27,10 +27,11 @@ pub fn setup(
         .insert(UiCamera)
         .insert(Name::new("UI Camera"));
 
-    // resources
+    // player automata stats
     let player_stats = PlayerAutomataStats::new(crate::STAT_POINTS);
     commands.insert_resource(player_stats);
 
+    // AI automata population
     let ai_population = AIAutomataPopulation::new(
         MUTATION_RATE,
         crate::ROUNDS,

@@ -6,7 +6,6 @@ use bevy_inspector_egui::Inspectable;
 use crate::bundles::automata::*;
 use crate::resources;
 use crate::resources::automata::*;
-use crate::resources::*;
 
 /// Automata state
 #[derive(Debug, Inspectable, Default)]
@@ -50,7 +49,6 @@ impl Automata {
     pub fn spawn_player(
         commands: &mut Commands,
         materials: &resources::automata::Materials,
-        stats: PlayerAutomataStats,
         cell: UVec2,
     ) {
         let entity = Automata::spawn(
@@ -67,11 +65,7 @@ impl Automata {
     pub fn spawn_ai(
         commands: &mut Commands,
         materials: &resources::automata::Materials,
-        stats: AIAutomataStats,
         cell: UVec2,
-        rounds: usize,
-        points: isize,
-        random: &mut Random,
     ) {
         let entity = Automata::spawn(commands, cell, materials.ai_automata.clone(), "AI automata");
 

@@ -3,6 +3,8 @@
 // bevy queries can produce a lot of this
 #![allow(clippy::type_complexity)]
 
+//#![deny(warnings)]
+
 mod bundles;
 mod components;
 mod events;
@@ -147,10 +149,10 @@ fn main() {
     registry.register::<components::ui::StatModifierButton>();
     registry.register::<components::ui::PointsText>();
     registry.register::<components::ui::StatModifierText>();
+    registry.register::<game::stats::StatId>();
     registry.register::<game::stats::Stat>();
     registry.register::<game::stats::StatSet>();
     registry.register::<game::dna::DNA>();
-    registry.register::<resources::automata::StatModifierType>();
 
     app.run();
 }

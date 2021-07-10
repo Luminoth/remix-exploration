@@ -1,6 +1,6 @@
 //! Remix state events
 
-use crate::resources::automata::*;
+use crate::game::stats::*;
 
 /// Notifies about a stat being modified in the UI
-pub struct StatModifiedEvent(pub StatModifierType);
+pub struct StatModifiedEvent(pub StatId);

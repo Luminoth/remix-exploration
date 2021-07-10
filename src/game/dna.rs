@@ -19,16 +19,16 @@ enum CrossoverMethod {
 }
 
 #[derive(Debug, Inspectable, Default)]
-struct StatFitness {
+struct StatSetFitness {
     fortitude: f32,
 }
 
 /// Genetic algorithm DNA
 #[derive(Debug, Inspectable)]
 pub struct DNA {
-    genes: Vec<StatSet>,
+    genes: StatSet,
 
-    fitness: StatFitness,
+    fitness: StatSetFitness,
     rounds: usize,
     points: isize,
 }
@@ -36,14 +36,9 @@ pub struct DNA {
 impl DNA {
     /// Creates a new, randomized DNA
     pub fn new(rounds: usize, points: isize, random: &mut Random) -> Self {
-        let mut genes = Vec::with_capacity(rounds);
-        for _ in 0..genes.capacity() {
-            genes.push(StatSet::random(points, random));
-        }
-
         Self {
-            genes,
-            fitness: StatFitness::default(),
+            genes: StatSet::random(points, random),
+            fitness: StatSetFitness::default(),
             rounds,
             points,
         }
@@ -60,24 +55,16 @@ impl DNA {
 
         match method {
             CrossoverMethod::Midpoint => {
-                let midpoint = random.random_range(0..self.genes.len());
-                for i in 0..self.genes.len() {
-                    child.genes[i] = if i > midpoint {
-                        self.genes[i]
-                    } else {
-                        partner.genes[i]
-                    };
-                }
+                child.genes.set_fortitude(self.genes.fortitude());
             }
             CrossoverMethod::Coin => {
-                for i in 0..self.genes.len() {
-                    let coin = random.random_range(0..=1);
-                    child.genes[i] = if coin == 0 {
-                        self.genes[i]
+                child
+                    .genes
+                    .set_fortitude(if random.random_range(0..=1) == 0 {
+                        self.genes.fortitude()
                     } else {
-                        partner.genes[i]
-                    };
-                }
+                        partner.genes.fortitude()
+                    });
             }
         }
 
@@ -86,11 +73,9 @@ impl DNA {
 
     /// Mutate random genes at the given mutation rate
     fn mutate(&mut self, mutation_rate: f64, random: &mut Random) {
-        for i in 0..self.genes.len() {
-            if random.random() < mutation_rate {
-                debug!("mutation!");
-                // TODO:
-            }
+        if random.random() < mutation_rate {
+            debug!("fortitude mutation!");
+            self.genes.randomize_stat(StatId::Fortitude);
         }
     }
 }

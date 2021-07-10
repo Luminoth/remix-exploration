@@ -2,11 +2,16 @@
 
 use bevy_inspector_egui::Inspectable;
 
-use crate::resources::automata::*;
 use crate::resources::*;
 
 /// Base automata health
 const BASE_HEALTH: isize = 10;
+
+/// Stat identifier enum for things that need it
+#[derive(Debug, Inspectable, Eq, PartialEq, Copy, Clone)]
+pub enum StatId {
+    Fortitude,
+}
 
 /// A single automata stat
 #[derive(Debug, Clone, Copy, Inspectable, Default)]
@@ -29,6 +34,10 @@ pub struct StatSet {
 }
 
 impl StatSet {
+    pub fn size() -> usize {
+        1
+    }
+
     /// Creates a new stat set
     #[allow(dead_code)]
     pub fn new(fortitude: Stat) -> Self {
@@ -40,7 +49,7 @@ impl StatSet {
         let mut stats = Self::default();
 
         // shuffle the stat types
-        let mut buckets = vec![StatModifierType::Fortitude];
+        let mut buckets = vec![StatId::Fortitude];
         random.shuffle(&mut buckets);
 
         // random points for each stat
@@ -55,18 +64,22 @@ impl StatSet {
         stats
     }
 
-    /// Randomizes a single random stat
-    ///
-    /// Will never increase the state beyond its current value
-    pub fn randomize_random_stat(&mut self) {
+    /// Randomizes a single stat
+    pub fn randomize_stat(&mut self, statid: StatId) {
         // TODO: not sure how to handle this,
         // if the stat value changes we need to shuffle other stats around
+        match statid {
+            StatId::Fortitude => {
+                // TODO:
+            }
+        }
     }
 
     /// Modifies a stat by amount
-    fn modify(&mut self, r#type: StatModifierType, amount: isize) {
-        match r#type {
-            StatModifierType::Fortitude => {
+    #[inline]
+    fn modify(&mut self, statid: StatId, amount: isize) {
+        match statid {
+            StatId::Fortitude => {
                 self.fortitude.value += amount;
             }
         }

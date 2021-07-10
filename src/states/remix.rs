@@ -8,6 +8,7 @@ use crate::bundles::ui::*;
 use crate::components::ui::*;
 use crate::components::*;
 use crate::events::remix::*;
+use crate::game::stats::*;
 use crate::resources::automata::*;
 use crate::resources::ui::*;
 
@@ -157,7 +158,7 @@ pub fn setup(
                             ..Default::default()
                         },
                         modifier_text: StatModifierText {
-                            r#type: StatModifierType::Fortitude,
+                            statid: StatId::Fortitude,
                         },
                     });
 
@@ -189,7 +190,7 @@ pub fn setup(
                                     },
                                     helper: ButtonHelper { interactable: true },
                                     modifier_button: StatModifierButton {
-                                        r#type: StatModifierType::Fortitude,
+                                        statid: StatId::Fortitude,
                                         modifier: 1,
                                     },
                                 })
@@ -225,7 +226,7 @@ pub fn setup(
                                         interactable: false,
                                     },
                                     modifier_button: StatModifierButton {
-                                        r#type: StatModifierType::Fortitude,
+                                        statid: StatId::Fortitude,
                                         modifier: -1,
                                     },
                                 })
@@ -317,8 +318,8 @@ pub fn stat_modified_event_handler(
 ) {
     for event in events.iter() {
         for (mut text, modifier) in text_query.iter_mut() {
-            if modifier.r#type == event.0 {
-                text.sections[0].value = format!("{}", stats.value(modifier.r#type));
+            if modifier.statid == event.0 {
+                text.sections[0].value = format!("{}", stats.value(modifier.statid));
             }
         }
 
@@ -327,10 +328,10 @@ pub fn stat_modified_event_handler(
         }
 
         for (mut helper, modifier) in modifier_query.iter_mut() {
-            if modifier.r#type == event.0 {
+            if modifier.statid == event.0 {
                 match modifier.modifier.cmp(&0) {
                     std::cmp::Ordering::Less => {
-                        helper.interactable = stats.value(modifier.r#type) > 0
+                        helper.interactable = stats.value(modifier.statid) > 0
                     }
                     std::cmp::Ordering::Greater => helper.interactable = stats.points() > 0,
                     std::cmp::Ordering::Equal => (),
@@ -356,8 +357,8 @@ pub fn modifier_button_handler(
     if let Ok((interaction, helper, modifier)) = modifier_query.single_mut() {
         #[allow(clippy::collapsible_if)]
         if helper.interactable && *interaction == Interaction::Clicked {
-            if stats.modify(modifier.r#type, modifier.modifier) {
-                state_modified_events.send(StatModifiedEvent(modifier.r#type));
+            if stats.modify(modifier.statid, modifier.modifier) {
+                state_modified_events.send(StatModifiedEvent(modifier.statid));
             }
         }
     }
