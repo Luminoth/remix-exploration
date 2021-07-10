@@ -4,7 +4,6 @@ use bevy::prelude::*;
 
 use super::*;
 
-use crate::bundles::ui::*;
 use crate::components::ui::*;
 use crate::components::*;
 use crate::game::dna::MUTATION_RATE;
@@ -41,93 +40,12 @@ pub fn setup(
     commands.insert_resource(ai_population);
 
     // UI
-    commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                flex_direction: FlexDirection::ColumnReverse,
-                align_items: AlignItems::Center,
-                ..Default::default()
-            },
-            material: ui_materials.none.clone(),
-            ..Default::default()
-        })
-        .insert(Name::new("UI Root"))
-        .with_children(|parent| {
-            // header
-            parent.spawn_bundle(TextBundle {
-                style: Style {
-                    margin: Rect::all(Val::Px(5.0)),
-                    ..Default::default()
-                },
-                text: Text::with_section(
-                    "Remix Exploration",
-                    TextStyle {
-                        font: fonts.normal.clone(),
-                        font_size: 30.0,
-                        color: Color::WHITE,
-                    },
-                    Default::default(),
-                ),
-                ..Default::default()
-            });
-
-            // spacer
-            parent.spawn_bundle(NodeBundle {
-                style: Style {
-                    size: Size::new(Val::Auto, Val::Auto),
-                    flex_grow: 1.0,
-                    ..Default::default()
-                },
-                material: ui_materials.none.clone(),
-                ..Default::default()
-            });
-
-            // actions
-            parent
-                .spawn_bundle(NodeBundle {
-                    style: Style {
-                        size: Size::new(Val::Auto, Val::Auto),
-                        align_items: AlignItems::Center,
-                        ..Default::default()
-                    },
-                    material: ui_materials.none.clone(),
-                    ..Default::default()
-                })
-                .insert(Name::new("Actions"))
-                .with_children(|parent| {
-                    parent
-                        .spawn_bundle(ActionButtonBundle {
-                            button: ButtonBundle {
-                                style: Style {
-                                    size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                                    margin: Rect::all(Val::Auto),
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    ..Default::default()
-                                },
-                                material: button_materials.normal.clone(),
-                                ..Default::default()
-                            },
-                            helper: ButtonHelper { interactable: true },
-                            action_button: ActionButton,
-                        })
-                        .with_children(|parent| {
-                            parent.spawn_bundle(TextBundle {
-                                text: Text::with_section(
-                                    "Play",
-                                    TextStyle {
-                                        font: fonts.normal.clone(),
-                                        font_size: 40.0,
-                                        color: Color::rgb(0.9, 0.9, 0.9),
-                                    },
-                                    Default::default(),
-                                ),
-                                ..Default::default()
-                            });
-                        });
-                });
-        });
+    let root = spawn_ui_root(&mut commands, &ui_materials);
+    commands.entity(root).with_children(|parent| {
+        spawn_header(parent, &fonts, "Remix Exploration");
+        spawn_spacer(parent, &ui_materials);
+        spawn_ok_action(parent, &ui_materials, &button_materials, &fonts, "Play");
+    });
 }
 
 /// Action button handler

@@ -1,5 +1,7 @@
 //! Automata stats
 
+use std::borrow::Cow;
+
 use bevy_inspector_egui::Inspectable;
 
 use crate::resources::*;
@@ -11,6 +13,12 @@ const BASE_HEALTH: isize = 10;
 #[derive(Debug, Inspectable, Eq, PartialEq, Copy, Clone)]
 pub enum StatId {
     Fortitude,
+}
+
+pub fn stat_name(statid: StatId) -> Cow<'static, str> {
+    match statid {
+        StatId::Fortitude => "Fortitude".into(),
+    }
 }
 
 /// A single automata stat
@@ -62,6 +70,13 @@ impl StatSet {
         stats.modify(buckets[0], points);
 
         stats
+    }
+
+    /// Returns the value of the given stat
+    pub fn value(&self, statid: StatId) -> isize {
+        match statid {
+            StatId::Fortitude => self.fortitude(),
+        }
     }
 
     /// Randomizes a single stat

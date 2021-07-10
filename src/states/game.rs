@@ -2,6 +2,8 @@
 
 use bevy::prelude::*;
 
+use super::*;
+
 //use crate::components::automata::*;
 use crate::components::ui::*;
 use crate::components::*;
@@ -49,19 +51,10 @@ pub fn setup(
     );*/
 
     // cell selection UI
+    let root = spawn_ui_root(&mut commands, &ui_materials);
     commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                flex_direction: FlexDirection::ColumnReverse,
-                align_items: AlignItems::FlexStart,
-                ..Default::default()
-            },
-            material: ui_materials.none.clone(),
-            ..Default::default()
-        })
+        .entity(root)
         .insert(CellSelection)
-        .insert(Name::new("UI Root"))
         .with_children(|parent| {
             // TODO:
             parent
@@ -93,66 +86,56 @@ pub fn setup(
                         ..Default::default()
                     });
                 });
+
+            for _ in 0..GRID_HEIGHT {
+                for _ in 0..GRID_WIDTH {
+                    //parent.spawn_bundle();
+                }
+            }
         });
 
     // HUD UI
-    commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                flex_direction: FlexDirection::ColumnReverse,
-                align_items: AlignItems::FlexStart,
+    let root = spawn_ui_root(&mut commands, &ui_materials);
+    commands.entity(root).insert(HUD).with_children(|parent| {
+        // TODO:
+        parent
+            .spawn_bundle(NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Auto, Val::Auto),
+                    align_items: AlignItems::FlexStart,
+                    ..Default::default()
+                },
+                material: ui_materials.none.clone(),
+                visible: Visible {
+                    is_visible: false,
+                    ..Default::default()
+                },
                 ..Default::default()
-            },
-            material: ui_materials.none.clone(),
-            visible: Visible {
-                is_visible: false,
-                ..Default::default()
-            },
-            ..Default::default()
-        })
-        .insert(HUD)
-        .insert(Name::new("UI Root"))
-        .with_children(|parent| {
-            // TODO:
-            parent
-                .spawn_bundle(NodeBundle {
+            })
+            .insert(Name::new("HUD"))
+            .with_children(|parent| {
+                parent.spawn_bundle(TextBundle {
                     style: Style {
-                        size: Size::new(Val::Auto, Val::Auto),
-                        align_items: AlignItems::FlexStart,
+                        margin: Rect::all(Val::Px(5.0)),
                         ..Default::default()
                     },
-                    material: ui_materials.none.clone(),
+                    text: Text::with_section(
+                        "Running ...",
+                        TextStyle {
+                            font: fonts.normal.clone(),
+                            font_size: 30.0,
+                            color: Color::WHITE,
+                        },
+                        Default::default(),
+                    ),
                     visible: Visible {
                         is_visible: false,
                         ..Default::default()
                     },
                     ..Default::default()
-                })
-                .insert(Name::new("HUD"))
-                .with_children(|parent| {
-                    parent.spawn_bundle(TextBundle {
-                        style: Style {
-                            margin: Rect::all(Val::Px(5.0)),
-                            ..Default::default()
-                        },
-                        text: Text::with_section(
-                            "Running ...",
-                            TextStyle {
-                                font: fonts.normal.clone(),
-                                font_size: 30.0,
-                                color: Color::WHITE,
-                            },
-                            Default::default(),
-                        ),
-                        visible: Visible {
-                            is_visible: false,
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    });
                 });
-        });
+            });
+    });
 }
 
 /// Game teardown
