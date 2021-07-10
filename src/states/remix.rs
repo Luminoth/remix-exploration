@@ -240,7 +240,14 @@ pub fn setup(
 
         spawn_spacer(parent, &ui_materials);
 
-        spawn_ok_action(parent, &ui_materials, &button_materials, &fonts, "Run");
+        spawn_ok_action(
+            parent,
+            &ui_materials,
+            &button_materials,
+            &fonts,
+            "Run",
+            false,
+        );
     });
 }
 

@@ -24,6 +24,16 @@ pub struct StatModifierButtonBundle {
     pub button: ButtonBundle,
 }
 
+/// Cell selection button component bundle
+#[derive(Bundle)]
+pub struct CellSelectionButtonBundle {
+    pub helper: ButtonHelper,
+    pub cell_selection_button: CellSelectionButton,
+
+    #[bundle]
+    pub button: ButtonBundle,
+}
+
 /// Points text component bundle
 #[derive(Bundle)]
 pub struct PointsTextBundle {

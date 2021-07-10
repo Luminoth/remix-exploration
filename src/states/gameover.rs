@@ -27,8 +27,17 @@ pub fn setup(
     let root = spawn_ui_root(&mut commands, &ui_materials);
     commands.entity(root).with_children(|parent| {
         spawn_header(parent, &fonts, "Game Over");
+
         spawn_spacer(parent, &ui_materials);
-        spawn_ok_action(parent, &ui_materials, &button_materials, &fonts, "Continue");
+
+        spawn_ok_action(
+            parent,
+            &ui_materials,
+            &button_materials,
+            &fonts,
+            "Continue",
+            true,
+        );
     });
 }
 

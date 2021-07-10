@@ -43,8 +43,17 @@ pub fn setup(
     let root = spawn_ui_root(&mut commands, &ui_materials);
     commands.entity(root).with_children(|parent| {
         spawn_header(parent, &fonts, "Remix Exploration");
+
         spawn_spacer(parent, &ui_materials);
-        spawn_ok_action(parent, &ui_materials, &button_materials, &fonts, "Play");
+
+        spawn_ok_action(
+            parent,
+            &ui_materials,
+            &button_materials,
+            &fonts,
+            "Play",
+            true,
+        );
     });
 }
 

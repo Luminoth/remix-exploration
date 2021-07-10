@@ -1,5 +1,6 @@
 //! UI components
 
+use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use crate::game::stats::*;
@@ -13,6 +14,13 @@ pub struct ButtonHelper {
 /// Action button
 #[derive(Debug, Inspectable, Default)]
 pub struct ActionButton;
+
+/// Cell selection button
+#[derive(Debug, Inspectable, Default)]
+pub struct CellSelectionButton {
+    // TODO: this should be UVec2, but those aren't Inspectable
+    pub cell: Vec2,
+}
 
 /// Stat modifier button
 #[derive(Debug, Inspectable)]

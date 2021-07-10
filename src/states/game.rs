@@ -4,24 +4,67 @@ use bevy::prelude::*;
 
 use super::*;
 
-//use crate::components::automata::*;
+use crate::components::automata::*;
 use crate::components::ui::*;
 use crate::components::*;
+use crate::resources::automata::*;
 use crate::resources::ui::*;
+use crate::util::*;
 use crate::*;
 
-// TODO: player has to select a grid slot
-// and then the AI has to select a grid slot
+const GRID_BUTTON_WIDTH: f32 = crate::WINDOW_WIDTH / crate::GRID_WIDTH as f32;
+const GRID_BUTTON_HEIGHT: f32 = crate::WINDOW_HEIGHT / crate::GRID_HEIGHT as f32;
+
+/// Spawn a cell selection row
+fn spawn_cell_selection_row(
+    parent: &mut ChildBuilder,
+    ui_materials: &UiMaterials,
+    button_materials: &ButtonMaterials,
+    row: usize,
+) {
+    parent
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Auto, Val::Auto),
+                align_items: AlignItems::Center,
+                ..Default::default()
+            },
+            material: ui_materials.none.clone(),
+            ..Default::default()
+        })
+        .insert(Name::new("Cell Selection Row"))
+        .with_children(|parent| {
+            for column in 0..crate::GRID_WIDTH {
+                parent.spawn_bundle(CellSelectionButtonBundle {
+                    button: ButtonBundle {
+                        style: Style {
+                            size: Size::new(
+                                Val::Px(GRID_BUTTON_WIDTH),
+                                Val::Px(GRID_BUTTON_HEIGHT),
+                            ),
+                            margin: Rect::all(Val::Auto),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            ..Default::default()
+                        },
+                        material: button_materials.normal.clone(),
+                        ..Default::default()
+                    },
+                    helper: ButtonHelper { interactable: true },
+                    cell_selection_button: CellSelectionButton {
+                        cell: Vec2::new(row as f32, column as f32),
+                    },
+                });
+            }
+        });
+}
 
 /// Game setup
 pub fn setup(
     mut commands: Commands,
-    /*player_stats: Res<PlayerAutomataStats>,
-    ai_stats: Res<AIAutomataStats>,
-    materials: Res<Materials>,*/
     ui_materials: Res<UiMaterials>,
+    button_materials: Res<ButtonMaterials>,
     fonts: Res<Fonts>,
-    //mut random: ResMut<Random>,
 ) {
     // cameras
     let mut camera = OrthographicCameraBundle::new_2d();
@@ -38,25 +81,12 @@ pub fn setup(
         .insert(UiCamera)
         .insert(Name::new("UI Camera"));
 
-    // spawn automata
-    /*Automata::spawn_player(&mut commands, &materials, *player_stats, UVec2::new(0, 0));
-    Automata::spawn_ai(
-        &mut commands,
-        &materials,
-        *ai_stats,
-        UVec2::new(1, 1),
-        ROUNDS,
-        STAT_POINTS,
-        &mut random,
-    );*/
-
     // cell selection UI
     let root = spawn_ui_root(&mut commands, &ui_materials);
     commands
         .entity(root)
         .insert(CellSelection)
         .with_children(|parent| {
-            // TODO:
             parent
                 .spawn_bundle(NodeBundle {
                     style: Style {
@@ -87,10 +117,8 @@ pub fn setup(
                     });
                 });
 
-            for _ in 0..GRID_HEIGHT {
-                for _ in 0..GRID_WIDTH {
-                    //parent.spawn_bundle();
-                }
+            for row in 0..GRID_HEIGHT {
+                spawn_cell_selection_row(parent, &ui_materials, &button_materials, row);
             }
         });
 
@@ -136,6 +164,44 @@ pub fn setup(
                 });
             });
     });
+}
+
+/// Cell selection button handler
+pub fn cell_selection_button_handler(
+    mut commands: Commands,
+    query: Query<(&Interaction, &ButtonHelper, &CellSelectionButton), Changed<Interaction>>,
+    cell_selection_ui_query: Query<Entity, With<CellSelection>>,
+    hud_query: Query<Entity, With<HUD>>,
+    mut visible_query: Query<&mut Visible>,
+    children_query: Query<&Children>,
+    materials: Res<Materials>,
+) {
+    if let Ok((interaction, helper, selection)) = query.single() {
+        #[allow(clippy::collapsible_if)]
+        if helper.interactable && *interaction == Interaction::Clicked {
+            // hide cell selection UI
+            if let Ok(cell_selection_ui) = cell_selection_ui_query.single() {
+                set_visible_recursive(
+                    cell_selection_ui,
+                    false,
+                    &mut visible_query,
+                    &children_query,
+                );
+            }
+
+            // show HUD
+            if let Ok(hud) = hud_query.single() {
+                set_visible_recursive(hud, true, &mut visible_query, &children_query);
+            }
+
+            // spawn automata
+            info!("Spawning player at {}", selection.cell);
+
+            let cell = UVec2::new(selection.cell.x as u32, selection.cell.y as u32);
+            Automata::spawn_player(&mut commands, &materials, cell);
+            //Automata::spawn_ai(&mut commands, &materials, UVec2::new(1, 1));
+        }
+    }
 }
 
 /// Game teardown

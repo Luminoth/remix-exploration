@@ -86,6 +86,7 @@ fn spawn_ok_action(
     button_materials: &ButtonMaterials,
     fonts: &Fonts,
     text: impl Into<String>,
+    interactable: bool,
 ) {
     parent
         .spawn_bundle(NodeBundle {
@@ -112,7 +113,7 @@ fn spawn_ok_action(
                         material: button_materials.normal.clone(),
                         ..Default::default()
                     },
-                    helper: ButtonHelper { interactable: true },
+                    helper: ButtonHelper { interactable },
                     action_button: ActionButton,
                 })
                 .with_children(|parent| {

@@ -73,6 +73,10 @@ impl Plugin for GameStatePlugin {
             SystemSet::on_enter(GameState::Game).with_system(states::game::setup.system()),
         )
         .add_system_set(
+            SystemSet::on_update(GameState::Game)
+                .with_system(states::game::cell_selection_button_handler.system()),
+        )
+        .add_system_set(
             SystemSet::on_exit(GameState::Game).with_system(states::game::teardown.system()),
         );
     }
