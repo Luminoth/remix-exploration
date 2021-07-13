@@ -52,7 +52,7 @@ fn spawn_cell_selection_row(
                     },
                     helper: ButtonHelper { interactable: true },
                     cell_selection_button: CellSelectionButton {
-                        cell: Vec2::new(row as f32, column as f32),
+                        cell: Vec2::new(column as f32, row as f32),
                     },
                 });
             }

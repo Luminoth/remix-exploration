@@ -15,6 +15,22 @@ pub fn clampf<F: Float>(v: F, min: F, max: F) -> F {
     Float::min(max, Float::max(min, v))
 }
 
+/// Gets the position for a grid cell
+pub fn cell_position(cell: UVec2) -> Vec3 {
+    // (0, 0) is in the center
+    let cell = IVec2::new(cell.x as i32, cell.y as i32)
+        - IVec2::new(crate::GRID_WIDTH as i32 / 2, crate::GRID_HEIGHT as i32 / 2);
+
+    // convert to pixels
+    let mut position =
+        Vec2::new(cell.x as f32, -cell.y as f32) * Vec2::new(crate::CELL_WIDTH, crate::CELL_HEIGHT);
+
+    // account for sprites rendering from their center
+    position -= Vec2::new(crate::CELL_WIDTH / 2.0, crate::CELL_HEIGHT / 2.0);
+
+    position.extend(0.0)
+}
+
 /// Recursively set the visibility of an entity and its children
 // https://github.com/bevyengine/bevy/issues/838
 pub fn set_visible_recursive(

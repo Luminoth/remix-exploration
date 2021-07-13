@@ -6,6 +6,7 @@ use bevy_inspector_egui::Inspectable;
 use crate::bundles::automata::*;
 use crate::resources;
 use crate::resources::automata::*;
+use crate::util::*;
 
 /// Automata state
 #[derive(Debug, Inspectable, Default)]
@@ -21,9 +22,8 @@ impl Automata {
         material: Handle<ColorMaterial>,
         name: impl Into<String>,
     ) -> Entity {
-        let position = Vec2::new(cell.x as f32, cell.y as f32)
-            * Vec2::new(crate::CELL_WIDTH as f32, crate::CELL_HEIGHT as f32);
-        let position = position.extend(0.0);
+        let position = cell_position(cell);
+        debug!("Position: {}", position);
 
         commands
             .spawn_bundle(AutomataBundle {

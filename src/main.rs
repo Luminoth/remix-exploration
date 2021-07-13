@@ -30,13 +30,13 @@ use states::*;
 
 const WINDOW_WIDTH: f32 = 1024.0;
 const WINDOW_HEIGHT: f32 = 768.0;
-//const ASPECT_RATIO: f32 = WINDOW_WIDTH / WINDOW_HEIGHT;
+const ASPECT_RATIO: f32 = WINDOW_WIDTH / WINDOW_HEIGHT;
 
 const GRID_WIDTH: usize = 10;
 const GRID_HEIGHT: usize = 10;
 
-pub const CELL_WIDTH: usize = 1;
-pub const CELL_HEIGHT: usize = 1;
+pub const CELL_WIDTH: f32 = 1.0 * ASPECT_RATIO;
+pub const CELL_HEIGHT: f32 = 1.0;
 
 pub const ROUNDS: usize = 10;
 pub const STAT_POINTS: isize = 20;
