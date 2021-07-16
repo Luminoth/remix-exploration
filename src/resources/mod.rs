@@ -2,6 +2,7 @@
 
 pub mod automata;
 pub mod debug;
+pub mod game;
 pub mod gridworld;
 pub mod ui;
 

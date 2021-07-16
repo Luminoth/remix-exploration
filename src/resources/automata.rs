@@ -129,6 +129,8 @@ impl AIAutomataPopulation {
 
 /// Materials container resource
 pub struct Materials {
+    pub cell: Handle<ColorMaterial>,
+
     pub player_automata: Handle<ColorMaterial>,
     pub ai_automata: Handle<ColorMaterial>,
 }

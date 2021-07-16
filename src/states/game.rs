@@ -4,10 +4,14 @@ use bevy::prelude::*;
 
 use super::*;
 
+use crate::bundles::*;
 use crate::components::automata::*;
+use crate::components::gridworld::*;
 use crate::components::ui::*;
 use crate::components::*;
 use crate::resources::automata::*;
+use crate::resources::game::*;
+use crate::resources::gridworld::*;
 use crate::resources::ui::*;
 use crate::util::*;
 use crate::*;
@@ -62,6 +66,8 @@ fn spawn_cell_selection_row(
 /// Game setup
 pub fn setup(
     mut commands: Commands,
+    gridworld: Res<GridWorld>,
+    materials: Res<Materials>,
     ui_materials: Res<UiMaterials>,
     button_materials: Res<ButtonMaterials>,
     fonts: Res<Fonts>,
@@ -80,6 +86,18 @@ pub fn setup(
         .spawn_bundle(UiCameraBundle::default())
         .insert(UiCamera)
         .insert(Name::new("UI Camera"));
+
+    // grid world
+    let parent = commands
+        .spawn_bundle(EmptyBundle::default())
+        .insert(Name::new("GridWorld"))
+        .id();
+    for cell in gridworld.cells.iter() {
+        GridWorldCell::spawn(&mut commands, parent, cell.0, materials.cell.clone());
+    }
+
+    // stage
+    commands.insert_resource(GameStage::CellSelection);
 
     // cell selection UI
     let root = spawn_ui_root(&mut commands, &ui_materials);
@@ -169,6 +187,7 @@ pub fn setup(
 /// Cell selection button handler
 pub fn cell_selection_button_handler(
     mut commands: Commands,
+    mut stage: ResMut<GameStage>,
     query: Query<(&Interaction, &ButtonHelper, &CellSelectionButton), Changed<Interaction>>,
     cell_selection_ui_query: Query<Entity, With<CellSelection>>,
     hud_query: Query<Entity, With<HUD>>,
@@ -176,11 +195,16 @@ pub fn cell_selection_button_handler(
     children_query: Query<&Children>,
     materials: Res<Materials>,
 ) {
+    if *stage != GameStage::CellSelection {
+        return;
+    }
+
     if let Ok((interaction, helper, selection)) = query.single() {
         #[allow(clippy::collapsible_if)]
         if helper.interactable && *interaction == Interaction::Clicked {
             // hide cell selection UI
             if let Ok(cell_selection_ui) = cell_selection_ui_query.single() {
+                debug!("Disabling cell selection");
                 set_visible_recursive(
                     cell_selection_ui,
                     false,
@@ -191,15 +215,23 @@ pub fn cell_selection_button_handler(
 
             // show HUD
             if let Ok(hud) = hud_query.single() {
+                debug!("Enabling HUD...");
                 set_visible_recursive(hud, true, &mut visible_query, &children_query);
             }
 
             // spawn automata
             info!("Spawning player at {}", selection.cell);
 
+            let parent = commands
+                .spawn_bundle(EmptyBundle::default())
+                .insert(Name::new("Automata"))
+                .id();
+
             let cell = UVec2::new(selection.cell.x as u32, selection.cell.y as u32);
-            Automata::spawn_player(&mut commands, &materials, cell);
-            //Automata::spawn_ai(&mut commands, &materials, UVec2::new(1, 1));
+            Automata::spawn_player(&mut commands, parent, &materials, cell);
+            //Automata::spawn_ai(&mut commands, parent, &materials, UVec2::new(1, 1));
+
+            *stage = GameStage::Running;
         }
     }
 }
@@ -211,4 +243,5 @@ pub fn teardown(mut commands: Commands, entities: Query<Entity>) {
     }
 
     commands.remove_resource::<ClearColor>();
+    commands.remove_resource::<GameStage>();
 }

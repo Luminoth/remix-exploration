@@ -23,7 +23,6 @@ use bevy_inspector_egui::{InspectableRegistry, WorldInspectorParams, WorldInspec
 use plugins::debug::*;
 use plugins::states::*;
 use plugins::ui::*;
-use resources::gridworld::*;
 use resources::ui::*;
 use resources::*;
 use states::*;
@@ -35,8 +34,19 @@ const ASPECT_RATIO: f32 = WINDOW_WIDTH / WINDOW_HEIGHT;
 const GRID_WIDTH: usize = 10;
 const GRID_HEIGHT: usize = 10;
 
-pub const CELL_WIDTH: f32 = 1.0 * ASPECT_RATIO;
-pub const CELL_HEIGHT: f32 = 1.0;
+pub const TOP_MARGIN: f32 = 1.0;
+
+const BASE_CELL_WIDTH: f32 = 1.0;
+const BASE_CELL_HEIGHT: f32 = 1.0;
+
+// TODO: this is a mess...
+pub const CELL_X_SCALE: f32 =
+    (GRID_WIDTH as f32 * BASE_CELL_WIDTH) / (GRID_WIDTH as f32 * BASE_CELL_WIDTH);
+pub const CELL_Y_SCALE: f32 = ((GRID_HEIGHT as f32 * BASE_CELL_HEIGHT) - TOP_MARGIN)
+    / (GRID_HEIGHT as f32 * BASE_CELL_HEIGHT);
+
+pub const CELL_WIDTH: f32 = BASE_CELL_WIDTH * CELL_X_SCALE * ASPECT_RATIO;
+pub const CELL_HEIGHT: f32 = BASE_CELL_HEIGHT * CELL_Y_SCALE;
 
 pub const ROUNDS: usize = 10;
 pub const STAT_POINTS: isize = 20;
@@ -52,9 +62,6 @@ fn setup(
 
     let random = Random::default();
 
-    let gridworld = GridWorld::new(GRID_WIDTH, GRID_HEIGHT);
-    commands.insert_resource(gridworld);
-
     // assets
     let fonts = Fonts {
         normal: asset_server.load("fonts/FiraSans-Bold.ttf"),
@@ -63,6 +70,7 @@ fn setup(
 
     // materials
     let automata_materials = resources::automata::Materials {
+        cell: materials.add(Color::BISQUE.into()),
         player_automata: materials.add(Color::TEAL.into()),
         ai_automata: materials.add(Color::ORANGE_RED.into()),
     };

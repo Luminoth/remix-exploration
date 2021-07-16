@@ -8,6 +8,7 @@ use crate::components::ui::*;
 use crate::components::*;
 use crate::game::dna::MUTATION_RATE;
 use crate::resources::automata::*;
+use crate::resources::gridworld::*;
 use crate::resources::ui::*;
 use crate::resources::*;
 
@@ -25,6 +26,10 @@ pub fn setup(
         .spawn_bundle(UiCameraBundle::default())
         .insert(UiCamera)
         .insert(Name::new("UI Camera"));
+
+    // world
+    let gridworld = GridWorld::new(crate::GRID_WIDTH, crate::GRID_HEIGHT);
+    commands.insert_resource(gridworld);
 
     // player automata stats
     let player_stats = PlayerAutomataStats::new(crate::STAT_POINTS);

@@ -34,6 +34,7 @@ fn spawn_ui_root(commands: &mut Commands, ui_materials: &UiMaterials) -> Entity 
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
+                position_type: PositionType::Absolute,
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 flex_direction: FlexDirection::ColumnReverse,
                 align_items: AlignItems::Center,
