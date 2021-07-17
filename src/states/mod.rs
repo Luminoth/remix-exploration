@@ -114,7 +114,7 @@ fn spawn_ok_action(
                         material: button_materials.normal.clone(),
                         ..Default::default()
                     },
-                    helper: ButtonHelper { interactable },
+                    helper: ButtonHelper::new(interactable),
                     action_button: ActionButton,
                 })
                 .with_children(|parent| {

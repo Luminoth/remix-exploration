@@ -50,7 +50,7 @@ pub fn action_button_handler(
     mut state: ResMut<State<GameState>>,
 ) {
     if let Ok((interaction, helper)) = action_query.single_mut() {
-        if helper.interactable && *interaction == Interaction::Clicked {
+        if helper.interactable() && *interaction == Interaction::Clicked {
             state.set(GameState::Intro).unwrap();
         }
     }

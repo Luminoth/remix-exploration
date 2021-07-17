@@ -4,11 +4,37 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use crate::game::stats::*;
+use crate::resources::ui::*;
 
 /// Button helper
 #[derive(Debug, Inspectable, Default)]
 pub struct ButtonHelper {
-    pub interactable: bool,
+    interactable: bool,
+}
+
+impl ButtonHelper {
+    pub fn new(interactable: bool) -> Self {
+        Self { interactable }
+    }
+
+    #[inline]
+    pub fn interactable(&self) -> bool {
+        self.interactable
+    }
+
+    pub fn set_interactable(
+        &mut self,
+        interactable: bool,
+        material: &mut Handle<ColorMaterial>,
+        materials: &ButtonMaterials,
+    ) {
+        self.interactable = interactable;
+        *material = if self.interactable {
+            materials.normal.clone()
+        } else {
+            materials.disabled.clone()
+        };
+    }
 }
 
 /// Action button

@@ -54,7 +54,7 @@ fn spawn_cell_selection_row(
                         material: button_materials.normal.clone(),
                         ..Default::default()
                     },
-                    helper: ButtonHelper { interactable: true },
+                    helper: ButtonHelper::new(true),
                     cell_selection_button: CellSelectionButton {
                         cell: Vec2::new(column as f32, row as f32),
                     },
@@ -201,7 +201,7 @@ pub fn cell_selection_button_handler(
 
     if let Ok((interaction, helper, selection)) = query.single() {
         #[allow(clippy::collapsible_if)]
-        if helper.interactable && *interaction == Interaction::Clicked {
+        if helper.interactable() && *interaction == Interaction::Clicked {
             // hide cell selection UI
             if let Ok(cell_selection_ui) = cell_selection_ui_query.single() {
                 debug!("Disabling cell selection");

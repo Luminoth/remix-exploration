@@ -14,7 +14,7 @@ pub fn update_buttons(
     >,
 ) {
     for (interaction, mut material, helper) in query.iter_mut() {
-        if helper.interactable {
+        if helper.interactable() {
             match *interaction {
                 Interaction::Clicked => {
                     *material = materials.pressed.clone();
