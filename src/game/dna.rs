@@ -21,6 +21,7 @@ enum CrossoverMethod {
 #[derive(Debug, Inspectable, Default)]
 struct StatSetFitness {
     fortitude: f32,
+    dexterity: f32,
 }
 
 /// Genetic algorithm DNA
@@ -47,6 +48,7 @@ impl DNA {
     /// Adjust genetic fitness based on round results
     pub fn fitness(&mut self, stats: &StatSet, health: usize) {
         self.fitness.fortitude = health.pow(2) as f32 / stats.initial_health().pow(2) as f32;
+        //self.fitness.dexterity = ???
     }
 
     /// Create a child through gentics crossover
@@ -56,6 +58,7 @@ impl DNA {
         match method {
             CrossoverMethod::Midpoint => {
                 child.genes.set_fortitude(self.genes.fortitude());
+                child.genes.set_dexterity(partner.genes.dexterity());
             }
             CrossoverMethod::Coin => {
                 child
@@ -65,17 +68,31 @@ impl DNA {
                     } else {
                         partner.genes.fortitude()
                     });
+
+                child
+                    .genes
+                    .set_dexterity(if random.random_range(0..=1) == 0 {
+                        self.genes.dexterity()
+                    } else {
+                        partner.genes.dexterity()
+                    });
             }
         }
 
         child
     }
 
+    /// Randomly mutate a specific stat at the given mutation rate
+    fn mutate_stat(&mut self, mutation_rate: f64, random: &mut Random, statid: StatId) {
+        if random.random() < mutation_rate {
+            debug!("{} mutation!", statid.name());
+            self.genes.randomize_stat(statid);
+        }
+    }
+
     /// Mutate random genes at the given mutation rate
     fn mutate(&mut self, mutation_rate: f64, random: &mut Random) {
-        if random.random() < mutation_rate {
-            debug!("fortitude mutation!");
-            self.genes.randomize_stat(StatId::Fortitude);
-        }
+        self.mutate_stat(mutation_rate, random, StatId::Fortitude);
+        self.mutate_stat(mutation_rate, random, StatId::Dexterity);
     }
 }

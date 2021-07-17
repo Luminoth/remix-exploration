@@ -29,6 +29,12 @@ macro_rules! impl_modify_stats {
                     }
                     self.stats.set_fortitude(self.stats.fortitude() + amount);
                 }
+                StatId::Dexterity => {
+                    if self.stats.dexterity() + amount < 0 {
+                        return false;
+                    }
+                    self.stats.set_dexterity(self.stats.dexterity() + amount);
+                }
             }
 
             self.points -= amount;
@@ -72,6 +78,7 @@ impl PlayerAutomataStats {
     pub fn value(&self, statid: StatId) -> isize {
         match statid {
             StatId::Fortitude => self.stats.fortitude(),
+            StatId::Dexterity => self.stats.dexterity(),
         }
     }
 }

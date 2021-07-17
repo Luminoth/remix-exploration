@@ -23,7 +23,7 @@ pub struct CellSelectionButton {
 }
 
 /// Stat modifier button
-#[derive(Debug, Inspectable)]
+#[derive(Debug /*, Inspectable*/)]
 pub struct StatModifierButton {
     pub statid: StatId,
     pub modifier: isize,
@@ -34,7 +34,7 @@ pub struct StatModifierButton {
 pub struct PointsText;
 
 /// Stat modifier text
-#[derive(Debug, Inspectable)]
+#[derive(Debug /*, Inspectable*/)]
 pub struct StatModifierText {
     pub statid: StatId,
 }

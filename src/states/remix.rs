@@ -21,8 +21,6 @@ fn spawn_stat_input(
     statid: StatId,
     player_stats: &PlayerAutomataStats,
 ) {
-    let stat_name = stat_name(statid);
-
     parent
         .spawn_bundle(NodeBundle {
             style: Style {
@@ -33,7 +31,7 @@ fn spawn_stat_input(
             material: ui_materials.none.clone(),
             ..Default::default()
         })
-        .insert(Name::new(stat_name.clone()))
+        .insert(Name::new(statid.name()))
         .with_children(|parent| {
             parent.spawn_bundle(TextBundle {
                 style: Style {
@@ -41,7 +39,7 @@ fn spawn_stat_input(
                     ..Default::default()
                 },
                 text: Text::with_section(
-                    stat_name,
+                    statid.name(),
                     TextStyle {
                         font: fonts.normal.clone(),
                         font_size: 14.0,
@@ -238,6 +236,15 @@ pub fn setup(
             &player_stats,
         );
 
+        spawn_stat_input(
+            parent,
+            &ui_materials,
+            &button_materials,
+            &fonts,
+            StatId::Dexterity,
+            &player_stats,
+        );
+
         spawn_spacer(parent, &ui_materials);
 
         spawn_ok_action(
@@ -272,14 +279,12 @@ pub fn stat_modified_event_handler(
         }
 
         for (mut helper, modifier) in modifier_query.iter_mut() {
-            if modifier.statid == event.0 {
-                match modifier.modifier.cmp(&0) {
-                    std::cmp::Ordering::Less => {
-                        helper.interactable = stats.value(modifier.statid) > 0
-                    }
-                    std::cmp::Ordering::Greater => helper.interactable = stats.points() > 0,
-                    std::cmp::Ordering::Equal => (),
-                }
+            match modifier.modifier.cmp(&0) {
+                // down
+                std::cmp::Ordering::Less => helper.interactable = stats.value(modifier.statid) > 0,
+                // up
+                std::cmp::Ordering::Greater => helper.interactable = stats.points() > 0,
+                _ => (),
             }
         }
 

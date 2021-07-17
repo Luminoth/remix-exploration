@@ -154,10 +154,10 @@ fn main() {
     registry.register::<components::gridworld::GridWorldCell>();
     registry.register::<components::ui::ButtonHelper>();
     registry.register::<components::ui::ActionButton>();
-    registry.register::<components::ui::StatModifierButton>();
+    //registry.register::<components::ui::StatModifierButton>();
     registry.register::<components::ui::PointsText>();
-    registry.register::<components::ui::StatModifierText>();
-    registry.register::<game::stats::StatId>();
+    //registry.register::<components::ui::StatModifierText>();
+    //registry.register::<game::stats::StatId>();
     registry.register::<game::stats::Stat>();
     registry.register::<game::stats::StatSet>();
     registry.register::<game::dna::DNA>();

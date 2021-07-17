@@ -3,21 +3,33 @@
 use std::borrow::Cow;
 
 use bevy_inspector_egui::Inspectable;
+use paste::paste;
 
 use crate::resources::*;
 
 /// Base automata health
 const BASE_HEALTH: isize = 10;
 
+/// Base automata movement
+const BASE_MOVEMENT: isize = 1;
+
 /// Stat identifier enum for things that need it
-#[derive(Debug, Inspectable, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, /*Inspectable,*/ Eq, PartialEq, Copy, Clone)]
 pub enum StatId {
+    /// Fortitude - HP
     Fortitude,
+
+    /// Dexterity - Movement
+    Dexterity,
 }
 
-pub fn stat_name(statid: StatId) -> Cow<'static, str> {
-    match statid {
-        StatId::Fortitude => "Fortitude".into(),
+impl StatId {
+    // TODO: replace this with a From<> impl
+    pub fn name(&self) -> Cow<'static, str> {
+        match self {
+            StatId::Fortitude => "Fortitude".into(),
+            StatId::Dexterity => "Dexterity".into(),
+        }
     }
 }
 
@@ -37,8 +49,26 @@ impl From<isize> for Stat {
 /// A set of automata stats
 #[derive(Debug, Clone, Copy, Inspectable, Default)]
 pub struct StatSet {
-    /// Fortitude - HP
     fortitude: Stat,
+    dexterity: Stat,
+}
+
+macro_rules! impl_stat {
+    ($statid:tt) => {
+        /// Gets the value of the stat
+        #[inline]
+        pub fn $statid(&self) -> isize {
+            self.$statid.value
+        }
+
+        paste! {
+            /// Sets the value of the stat
+            #[inline]
+            pub fn [<set_ $statid>](&mut self, value: isize) {
+                self.$statid.value = value;
+            }
+        }
+    };
 }
 
 impl StatSet {
@@ -48,8 +78,11 @@ impl StatSet {
 
     /// Creates a new stat set
     #[allow(dead_code)]
-    pub fn new(fortitude: Stat) -> Self {
-        Self { fortitude }
+    pub fn new(fortitude: Stat, dexterity: Stat) -> Self {
+        Self {
+            fortitude,
+            dexterity,
+        }
     }
 
     /// Crates a new, randomized stat set
@@ -57,7 +90,7 @@ impl StatSet {
         let mut stats = Self::default();
 
         // shuffle the stat types
-        let mut buckets = vec![StatId::Fortitude];
+        let mut buckets = vec![StatId::Fortitude, StatId::Dexterity];
         random.shuffle(&mut buckets);
 
         // random points for each stat
@@ -76,6 +109,7 @@ impl StatSet {
     pub fn value(&self, statid: StatId) -> isize {
         match statid {
             StatId::Fortitude => self.fortitude(),
+            StatId::Dexterity => self.dexterity(),
         }
     }
 
@@ -85,6 +119,9 @@ impl StatSet {
         // if the stat value changes we need to shuffle other stats around
         match statid {
             StatId::Fortitude => {
+                // TODO:
+            }
+            StatId::Dexterity => {
                 // TODO:
             }
         }
@@ -97,24 +134,25 @@ impl StatSet {
             StatId::Fortitude => {
                 self.fortitude.value += amount;
             }
+            StatId::Dexterity => {
+                self.dexterity.value += amount;
+            }
         }
     }
 
-    /// Gets the value of the fortitude stat
-    #[inline]
-    pub fn fortitude(&self) -> isize {
-        self.fortitude.value
-    }
-
-    /// Sets the value of the fortitude stat
-    #[inline]
-    pub fn set_fortitude(&mut self, value: isize) {
-        self.fortitude.value = value;
-    }
+    impl_stat!(fortitude);
 
     /// Gets the automata initial health, based on Fortitude stat
     #[inline]
     pub fn initial_health(&self) -> usize {
         (BASE_HEALTH + self.fortitude()).max(1) as usize
+    }
+
+    impl_stat!(dexterity);
+
+    /// Gets the automata movement, based on Dexterity stat
+    #[inline]
+    pub fn movement(&self) -> usize {
+        (BASE_MOVEMENT + self.dexterity() / 5).max(1) as usize
     }
 }
