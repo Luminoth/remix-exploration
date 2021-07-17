@@ -2804,6 +2804,7 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "bevy_egui",
+ "derivative",
  "num-traits",
  "paste",
  "rand",

@@ -97,7 +97,7 @@ pub fn setup(
     }
 
     // stage
-    commands.insert_resource(GameStage::CellSelection);
+    commands.insert_resource(GameRound::default());
 
     // cell selection UI
     let root = spawn_ui_root(&mut commands, &ui_materials);
@@ -187,7 +187,7 @@ pub fn setup(
 /// Cell selection button handler
 pub fn cell_selection_button_handler(
     mut commands: Commands,
-    mut stage: ResMut<GameStage>,
+    mut round: ResMut<GameRound>,
     query: Query<(&Interaction, &ButtonHelper, &CellSelectionButton), Changed<Interaction>>,
     cell_selection_ui_query: Query<Entity, With<CellSelection>>,
     hud_query: Query<Entity, With<HUD>>,
@@ -195,7 +195,7 @@ pub fn cell_selection_button_handler(
     children_query: Query<&Children>,
     materials: Res<Materials>,
 ) {
-    if *stage != GameStage::CellSelection {
+    if round.stage != GameStage::CellSelection {
         return;
     }
 
@@ -231,8 +231,15 @@ pub fn cell_selection_button_handler(
             Automata::spawn_player(&mut commands, parent, &materials, cell);
             //Automata::spawn_ai(&mut commands, parent, &materials, UVec2::new(1, 1));
 
-            *stage = GameStage::Running;
+            round.stage = GameStage::Running;
         }
+    }
+}
+
+/// Automata action handler
+pub fn automata_action(round: Res<GameRound>) {
+    if round.stage != GameStage::Running {
+        return;
     }
 }
 
@@ -243,5 +250,5 @@ pub fn teardown(mut commands: Commands, entities: Query<Entity>) {
     }
 
     commands.remove_resource::<ClearColor>();
-    commands.remove_resource::<GameStage>();
+    commands.remove_resource::<GameRound>();
 }

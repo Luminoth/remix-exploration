@@ -74,7 +74,8 @@ impl Plugin for GameStatePlugin {
         )
         .add_system_set(
             SystemSet::on_update(GameState::Game)
-                .with_system(states::game::cell_selection_button_handler.system()),
+                .with_system(states::game::cell_selection_button_handler.system())
+                .with_system(states::game::automata_action.system()),
         )
         .add_system_set(
             SystemSet::on_exit(GameState::Game).with_system(states::game::teardown.system()),
