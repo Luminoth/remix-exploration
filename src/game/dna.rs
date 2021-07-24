@@ -20,8 +20,10 @@ enum CrossoverMethod {
 
 #[derive(Debug, Inspectable, Default)]
 struct StatSetFitness {
-    fortitude: f32,
+    constitution: f32,
     dexterity: f32,
+    strength: f32,
+    fortitude: f32,
 }
 
 /// Genetic algorithm DNA
@@ -47,8 +49,10 @@ impl DNA {
 
     /// Adjust genetic fitness based on round results
     pub fn fitness(&mut self, stats: &StatSet, health: usize) {
-        self.fitness.fortitude = health.pow(2) as f32 / stats.initial_health().pow(2) as f32;
+        self.fitness.constitution = health.pow(2) as f32 / stats.initial_health().pow(2) as f32;
         //self.fitness.dexterity = ???
+        //self.fitness.strength = ???
+        //self.fitenss.fortitude = ???
     }
 
     /// Create a child through gentics crossover
@@ -57,16 +61,18 @@ impl DNA {
 
         match method {
             CrossoverMethod::Midpoint => {
-                child.genes.set_fortitude(self.genes.fortitude());
-                child.genes.set_dexterity(partner.genes.dexterity());
+                child.genes.set_constitution(self.genes.constitution());
+                child.genes.set_dexterity(self.genes.dexterity());
+                child.genes.set_strength(partner.genes.strength());
+                child.genes.set_fortitude(partner.genes.fortitude());
             }
             CrossoverMethod::Coin => {
                 child
                     .genes
-                    .set_fortitude(if random.random_range(0..=1) == 0 {
-                        self.genes.fortitude()
+                    .set_constitution(if random.random_range(0..=1) == 0 {
+                        self.genes.constitution()
                     } else {
-                        partner.genes.fortitude()
+                        partner.genes.constitution()
                     });
 
                 child
@@ -75,6 +81,22 @@ impl DNA {
                         self.genes.dexterity()
                     } else {
                         partner.genes.dexterity()
+                    });
+
+                child
+                    .genes
+                    .set_strength(if random.random_range(0..=1) == 0 {
+                        self.genes.strength()
+                    } else {
+                        partner.genes.strength()
+                    });
+
+                child
+                    .genes
+                    .set_fortitude(if random.random_range(0..=1) == 0 {
+                        self.genes.fortitude()
+                    } else {
+                        partner.genes.fortitude()
                     });
             }
         }
@@ -92,7 +114,9 @@ impl DNA {
 
     /// Mutate random genes at the given mutation rate
     fn mutate(&mut self, mutation_rate: f64, random: &mut Random) {
-        self.mutate_stat(mutation_rate, random, StatId::Fortitude);
+        self.mutate_stat(mutation_rate, random, StatId::Constitution);
         self.mutate_stat(mutation_rate, random, StatId::Dexterity);
+        self.mutate_stat(mutation_rate, random, StatId::Strength);
+        self.mutate_stat(mutation_rate, random, StatId::Fortitude);
     }
 }

@@ -12,7 +12,7 @@ use crate::util::*;
 #[derive(Debug, Inspectable, Default)]
 pub struct Automata {
     /// Current HP (health)
-    health: usize,
+    pub health: usize,
 }
 
 impl Automata {

@@ -23,17 +23,30 @@ macro_rules! impl_modify_stats {
             }
 
             match statid {
-                StatId::Fortitude => {
-                    if self.stats.fortitude() + amount < 0 {
+                StatId::Constitution => {
+                    if self.stats.constitution() + amount < 0 {
                         return false;
                     }
-                    self.stats.set_fortitude(self.stats.fortitude() + amount);
+                    self.stats
+                        .set_constitution(self.stats.constitution() + amount);
                 }
                 StatId::Dexterity => {
                     if self.stats.dexterity() + amount < 0 {
                         return false;
                     }
                     self.stats.set_dexterity(self.stats.dexterity() + amount);
+                }
+                StatId::Strength => {
+                    if self.stats.strength() + amount < 0 {
+                        return false;
+                    }
+                    self.stats.set_strength(self.stats.strength() + amount);
+                }
+                StatId::Fortitude => {
+                    if self.stats.fortitude() + amount < 0 {
+                        return false;
+                    }
+                    self.stats.set_fortitude(self.stats.fortitude() + amount);
                 }
             }
 
@@ -77,8 +90,10 @@ impl PlayerAutomataStats {
     /// Gets the value of a stat
     pub fn value(&self, statid: StatId) -> isize {
         match statid {
-            StatId::Fortitude => self.stats.fortitude(),
+            StatId::Constitution => self.stats.constitution(),
             StatId::Dexterity => self.stats.dexterity(),
+            StatId::Strength => self.stats.strength(),
+            StatId::Fortitude => self.stats.fortitude(),
         }
     }
 }

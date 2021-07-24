@@ -51,3 +51,12 @@ pub struct StatModifierTextBundle {
     #[bundle]
     pub text: TextBundle,
 }
+
+/// Stat Modifier text component bundle
+#[derive(Bundle)]
+pub struct AutomataHealthTextBundle {
+    pub health_text: AutomataHealthText,
+
+    #[bundle]
+    pub text: TextBundle,
+}

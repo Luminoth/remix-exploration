@@ -4,11 +4,13 @@ use bevy::prelude::*;
 
 use super::*;
 
+use crate::bundles::ui::*;
 use crate::bundles::*;
 use crate::components::automata::*;
 use crate::components::gridworld::*;
 use crate::components::ui::*;
 use crate::components::*;
+use crate::events::game::*;
 use crate::resources::automata::*;
 use crate::resources::game::*;
 use crate::resources::gridworld::*;
@@ -143,7 +145,6 @@ pub fn setup(
     // HUD UI
     let root = spawn_ui_root(&mut commands, &ui_materials);
     commands.entity(root).insert(HUD).with_children(|parent| {
-        // TODO:
         parent
             .spawn_bundle(NodeBundle {
                 style: Style {
@@ -166,7 +167,7 @@ pub fn setup(
                         ..Default::default()
                     },
                     text: Text::with_section(
-                        "Running ...",
+                        "Player Health:",
                         TextStyle {
                             font: fonts.normal.clone(),
                             font_size: 30.0,
@@ -180,6 +181,78 @@ pub fn setup(
                     },
                     ..Default::default()
                 });
+
+                parent.spawn_bundle(AutomataHealthTextBundle {
+                    text: TextBundle {
+                        style: Style {
+                            margin: Rect::all(Val::Px(5.0)),
+                            ..Default::default()
+                        },
+                        text: Text::with_section(
+                            format!("{}", 0),
+                            TextStyle {
+                                font: fonts.normal.clone(),
+                                font_size: 30.0,
+                                color: Color::WHITE,
+                            },
+                            Default::default(),
+                        ),
+                        visible: Visible {
+                            is_visible: false,
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                    health_text: AutomataHealthText { player: true },
+                });
+
+                // TODO: why doesn't this work?
+                spawn_spacer(parent, &ui_materials);
+
+                parent.spawn_bundle(TextBundle {
+                    style: Style {
+                        margin: Rect::all(Val::Px(5.0)),
+                        ..Default::default()
+                    },
+                    text: Text::with_section(
+                        "AI Health:",
+                        TextStyle {
+                            font: fonts.normal.clone(),
+                            font_size: 30.0,
+                            color: Color::WHITE,
+                        },
+                        Default::default(),
+                    ),
+                    visible: Visible {
+                        is_visible: false,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                });
+
+                parent.spawn_bundle(AutomataHealthTextBundle {
+                    text: TextBundle {
+                        style: Style {
+                            margin: Rect::all(Val::Px(5.0)),
+                            ..Default::default()
+                        },
+                        text: Text::with_section(
+                            format!("{}", 0),
+                            TextStyle {
+                                font: fonts.normal.clone(),
+                                font_size: 30.0,
+                                color: Color::WHITE,
+                            },
+                            Default::default(),
+                        ),
+                        visible: Visible {
+                            is_visible: false,
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                    health_text: AutomataHealthText { player: false },
+                });
             });
     });
 }
@@ -188,12 +261,14 @@ pub fn setup(
 pub fn cell_selection_button_handler(
     mut commands: Commands,
     mut round: ResMut<GameRound>,
+    materials: Res<Materials>,
     query: Query<(&Interaction, &ButtonHelper, &CellSelectionButton), Changed<Interaction>>,
     cell_selection_ui_query: Query<Entity, With<CellSelection>>,
     hud_query: Query<Entity, With<HUD>>,
     mut visible_query: Query<&mut Visible>,
     children_query: Query<&Children>,
-    materials: Res<Materials>,
+
+    mut game_start_events: EventWriter<GameStartEvent>,
 ) {
     if round.stage != GameStage::CellSelection {
         return;
@@ -220,18 +295,72 @@ pub fn cell_selection_button_handler(
             }
 
             // spawn automata
-            info!("Spawning player at {}", selection.cell);
-
             let parent = commands
                 .spawn_bundle(EmptyBundle::default())
                 .insert(Name::new("Automata"))
                 .id();
 
-            let cell = UVec2::new(selection.cell.x as u32, selection.cell.y as u32);
-            Automata::spawn_player(&mut commands, parent, &materials, cell);
-            //Automata::spawn_ai(&mut commands, parent, &materials, UVec2::new(1, 1));
+            let player_cell = UVec2::new(selection.cell.x as u32, selection.cell.y as u32);
+            info!("Spawning player at {}", player_cell);
+            Automata::spawn_player(&mut commands, parent, &materials, player_cell);
+
+            /*let ai_cell = UVec2::new(1, 1);
+            info!("Spawning player at {}", player_cell);
+            Automata::spawn_ai(&mut commands, parent, &materials, ai_cell);*/
+
+            game_start_events.send(GameStartEvent);
 
             round.stage = GameStage::Running;
+        }
+    }
+}
+
+/// Game start event handler
+pub fn game_start_event_handler(
+    mut events: EventReader<GameStartEvent>,
+    player_stats: Res<PlayerAutomataStats>,
+    //ai_stats: Res<AIAutomataStats>,
+    mut player_automata_query: Query<&mut Automata, With<PlayerAutomata>>,
+    //mut ai_automata_query: Query<&mut Automata, With<AIAutomata>>,
+    mut health_text_query: Query<(&mut Text, &AutomataHealthText)>,
+) {
+    for _ in events.iter() {
+        if let Ok(mut automata) = player_automata_query.single_mut() {
+            automata.reset(&*player_stats);
+
+            for (mut text, health) in health_text_query.iter_mut() {
+                if !health.player {
+                    continue;
+                }
+
+                text.sections[0].value = format!("{}", automata.health);
+            }
+        }
+
+        /*if let Ok(mut automata) = ai_automata_query.single_mut() {
+            automata.reset(&*ai_stats);
+
+            for (mut text, health) in health_text_query.iter_mut() {
+                if health.player {
+                    continue;
+                }
+
+                text.sections[0].value = format!("{}", automata.health);
+            }
+        }*/
+    }
+}
+
+/// Automata health changed event handler
+pub fn health_changed_event_handler(
+    mut events: EventReader<HealthChangedEvent>,
+    mut text_query: Query<(&mut Text, &AutomataHealthText)>,
+) {
+    for event in events.iter() {
+        for (mut text, health) in text_query.iter_mut() {
+            if health.player == event.player {
+                text.sections[0].value = format!("{}", event.value);
+            }
         }
     }
 }

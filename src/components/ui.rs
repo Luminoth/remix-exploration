@@ -65,6 +65,12 @@ pub struct StatModifierText {
     pub statid: StatId,
 }
 
+/// Automata health text
+#[derive(Debug /*, Inspectable*/)]
+pub struct AutomataHealthText {
+    pub player: bool,
+}
+
 /// Cell selection tag
 pub struct CellSelection;
 

@@ -10,25 +10,51 @@ use crate::resources::*;
 /// Base automata health
 const BASE_HEALTH: isize = 10;
 
+/// Constitution modifier for calculating initial health
+const CONSTITUTION_MOD: f32 = 1.0;
+
 /// Base automata movement
 const BASE_MOVEMENT: isize = 1;
+
+/// Dexterity modifier for calculating movement
+const DEXTERITY_MOD: f32 = 0.2;
+
+/// Base automata attack damage
+const BASE_ATTACK: isize = 1;
+
+/// Strength modifier for calculating attack damage
+const STRENGTH_MOD: f32 = 0.25;
+
+/// Base automata attack damage absorb
+const BASE_ATTACK_ABSORB: isize = 0;
+
+/// Fortitude modifier for calculating damage absorb
+const FORTITUDE_MOD: f32 = 0.25;
 
 /// Stat identifier enum for things that need it
 #[derive(Debug, /*Inspectable,*/ Eq, PartialEq, Copy, Clone)]
 pub enum StatId {
-    /// Fortitude - HP
-    Fortitude,
+    /// Constitution - HP
+    Constitution,
 
     /// Dexterity - Movement
     Dexterity,
+
+    /// Strength - Attack
+    Strength,
+
+    /// Fortitude - Defense
+    Fortitude,
 }
 
 impl StatId {
     // TODO: replace this with a From<> impl
     pub fn name(&self) -> Cow<'static, str> {
         match self {
-            StatId::Fortitude => "Fortitude".into(),
+            StatId::Constitution => "Constitution".into(),
             StatId::Dexterity => "Dexterity".into(),
+            StatId::Strength => "Strength".into(),
+            StatId::Fortitude => "Fortitude".into(),
         }
     }
 }
@@ -49,8 +75,10 @@ impl From<isize> for Stat {
 /// A set of automata stats
 #[derive(Debug, Clone, Copy, Inspectable, Default)]
 pub struct StatSet {
-    fortitude: Stat,
+    constitution: Stat,
     dexterity: Stat,
+    strength: Stat,
+    fortitude: Stat,
 }
 
 macro_rules! impl_stat {
@@ -78,10 +106,12 @@ impl StatSet {
 
     /// Creates a new stat set
     #[allow(dead_code)]
-    pub fn new(fortitude: Stat, dexterity: Stat) -> Self {
+    pub fn new(constitution: Stat, dexterity: Stat, strength: Stat, fortitude: Stat) -> Self {
         Self {
-            fortitude,
+            constitution,
             dexterity,
+            strength,
+            fortitude,
         }
     }
 
@@ -90,7 +120,12 @@ impl StatSet {
         let mut stats = Self::default();
 
         // shuffle the stat types
-        let mut buckets = vec![StatId::Fortitude, StatId::Dexterity];
+        let mut buckets = vec![
+            StatId::Constitution,
+            StatId::Dexterity,
+            StatId::Strength,
+            StatId::Fortitude,
+        ];
         random.shuffle(&mut buckets);
 
         // random points for each stat
@@ -108,8 +143,10 @@ impl StatSet {
     /// Returns the value of the given stat
     pub fn value(&self, statid: StatId) -> isize {
         match statid {
-            StatId::Fortitude => self.fortitude(),
+            StatId::Constitution => self.constitution(),
             StatId::Dexterity => self.dexterity(),
+            StatId::Strength => self.strength(),
+            StatId::Fortitude => self.fortitude(),
         }
     }
 
@@ -118,10 +155,16 @@ impl StatSet {
         // TODO: not sure how to handle this,
         // if the stat value changes we need to shuffle other stats around
         match statid {
-            StatId::Fortitude => {
+            StatId::Constitution => {
                 // TODO:
             }
             StatId::Dexterity => {
+                // TODO:
+            }
+            StatId::Strength => {
+                // TODO:
+            }
+            StatId::Fortitude => {
                 // TODO:
             }
         }
@@ -131,21 +174,27 @@ impl StatSet {
     #[inline]
     fn modify(&mut self, statid: StatId, amount: isize) {
         match statid {
-            StatId::Fortitude => {
-                self.fortitude.value += amount;
+            StatId::Constitution => {
+                self.constitution.value += amount;
             }
             StatId::Dexterity => {
                 self.dexterity.value += amount;
             }
+            StatId::Strength => {
+                self.strength.value += amount;
+            }
+            StatId::Fortitude => {
+                self.fortitude.value += amount;
+            }
         }
     }
 
-    impl_stat!(fortitude);
+    impl_stat!(constitution);
 
-    /// Gets the automata initial health, based on Fortitude stat
+    /// Gets the automata initial health, based on Constitution stat
     #[inline]
     pub fn initial_health(&self) -> usize {
-        (BASE_HEALTH + self.fortitude()).max(1) as usize
+        (BASE_HEALTH + (self.constitution() as f32 * CONSTITUTION_MOD) as isize).max(1) as usize
     }
 
     impl_stat!(dexterity);
@@ -153,6 +202,22 @@ impl StatSet {
     /// Gets the automata movement, based on Dexterity stat
     #[inline]
     pub fn movement(&self) -> usize {
-        (BASE_MOVEMENT + self.dexterity() / 5).max(1) as usize
+        (BASE_MOVEMENT + (self.dexterity() as f32 * DEXTERITY_MOD) as isize).max(1) as usize
+    }
+
+    impl_stat!(strength);
+
+    /// Gets the automata attack damage, based on Strength stat
+    #[inline]
+    pub fn attack_damage(&self) -> usize {
+        (BASE_ATTACK + (self.strength() as f32 * STRENGTH_MOD) as isize).max(1) as usize
+    }
+
+    impl_stat!(fortitude);
+
+    /// Gets the amount of damage absorbed, based on Fortitude stat
+    #[inline]
+    pub fn absorbed_damage(&self) -> usize {
+        (BASE_ATTACK_ABSORB + (self.fortitude() as f32 * FORTITUDE_MOD) as isize).max(1) as usize
     }
 }

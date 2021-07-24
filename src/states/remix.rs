@@ -20,6 +20,7 @@ fn spawn_stat_input(
     fonts: &Fonts,
     statid: StatId,
     player_stats: &PlayerAutomataStats,
+    description: impl Into<String>,
 ) {
     parent
         .spawn_bundle(NodeBundle {
@@ -151,6 +152,23 @@ fn spawn_stat_input(
                             });
                         });
                 });
+
+            parent.spawn_bundle(TextBundle {
+                style: Style {
+                    margin: Rect::all(Val::Px(5.0)),
+                    ..Default::default()
+                },
+                text: Text::with_section(
+                    description,
+                    TextStyle {
+                        font: fonts.normal.clone(),
+                        font_size: 14.0,
+                        color: Color::WHITE,
+                    },
+                    Default::default(),
+                ),
+                ..Default::default()
+            });
         });
 }
 
@@ -230,8 +248,9 @@ pub fn setup(
             &ui_materials,
             &button_materials,
             &fonts,
-            StatId::Fortitude,
+            StatId::Constitution,
             &player_stats,
+            "Starting health",
         );
 
         spawn_stat_input(
@@ -241,6 +260,27 @@ pub fn setup(
             &fonts,
             StatId::Dexterity,
             &player_stats,
+            "Movement",
+        );
+
+        spawn_stat_input(
+            parent,
+            &ui_materials,
+            &button_materials,
+            &fonts,
+            StatId::Strength,
+            &player_stats,
+            "Attack damage",
+        );
+
+        spawn_stat_input(
+            parent,
+            &ui_materials,
+            &button_materials,
+            &fonts,
+            StatId::Fortitude,
+            &player_stats,
+            "Damage absorb",
         );
 
         spawn_spacer(parent, &ui_materials);

@@ -3,6 +3,7 @@
 use bevy::app::PluginGroupBuilder;
 use bevy::prelude::*;
 
+use crate::events::game::*;
 use crate::events::remix::*;
 use crate::states;
 use crate::states::*;
@@ -68,6 +69,10 @@ struct GameStatePlugin;
 
 impl Plugin for GameStatePlugin {
     fn build(&self, app: &mut AppBuilder) {
+        // events
+        app.add_event::<GameStartEvent>()
+            .add_event::<HealthChangedEvent>();
+
         // systems
         app.add_system_set(
             SystemSet::on_enter(GameState::Game).with_system(states::game::setup.system()),
@@ -75,6 +80,8 @@ impl Plugin for GameStatePlugin {
         .add_system_set(
             SystemSet::on_update(GameState::Game)
                 .with_system(states::game::cell_selection_button_handler.system())
+                .with_system(states::game::game_start_event_handler.system())
+                .with_system(states::game::health_changed_event_handler.system())
                 .with_system(states::game::automata_action.system()),
         )
         .add_system_set(
