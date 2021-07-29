@@ -1,8 +1,13 @@
 //! Exploration of the 2021 Remix Summer Slow Jam
 
-// bevy queries can produce a lot of this
+// bevy queries can produce a lot of these
 #![allow(clippy::type_complexity)]
+// bevy systems can produce a lot of this
+#![allow(clippy::too_many_arguments)]
+// TODO: remove this
+#![allow(dead_code)]
 
+// TODO: enable this
 //#![deny(warnings)]
 
 mod bundles;
@@ -35,13 +40,14 @@ const GRID_WIDTH: usize = 10;
 const GRID_HEIGHT: usize = 10;
 
 pub const TOP_MARGIN: f32 = 1.0;
+pub const LEFT_MARGIN: f32 = 0.0;
 
 const BASE_CELL_WIDTH: f32 = 1.0;
 const BASE_CELL_HEIGHT: f32 = 1.0;
 
 // TODO: this is a mess...
 pub const CELL_X_SCALE: f32 =
-    (GRID_WIDTH as f32 * BASE_CELL_WIDTH) / (GRID_WIDTH as f32 * BASE_CELL_WIDTH);
+    ((GRID_WIDTH as f32 * BASE_CELL_WIDTH) - LEFT_MARGIN) / (GRID_WIDTH as f32 * BASE_CELL_WIDTH);
 pub const CELL_Y_SCALE: f32 = ((GRID_HEIGHT as f32 * BASE_CELL_HEIGHT) - TOP_MARGIN)
     / (GRID_HEIGHT as f32 * BASE_CELL_HEIGHT);
 
@@ -160,7 +166,7 @@ fn main() {
     //registry.register::<game::stats::StatId>();
     registry.register::<game::stats::Stat>();
     registry.register::<game::stats::StatSet>();
-    registry.register::<game::dna::DNA>();
+    registry.register::<game::dna::Dna>();
 
     app.run();
 }

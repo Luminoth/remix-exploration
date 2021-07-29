@@ -28,7 +28,7 @@ struct StatSetFitness {
 
 /// Genetic algorithm DNA
 #[derive(Debug, Inspectable)]
-pub struct DNA {
+pub struct Dna {
     genes: StatSet,
 
     fitness: StatSetFitness,
@@ -36,7 +36,7 @@ pub struct DNA {
     points: isize,
 }
 
-impl DNA {
+impl Dna {
     /// Creates a new, randomized DNA
     pub fn new(rounds: usize, points: isize, random: &mut Random) -> Self {
         Self {
@@ -56,8 +56,8 @@ impl DNA {
     }
 
     /// Create a child through gentics crossover
-    fn crossover(&self, partner: &DNA, method: CrossoverMethod, random: &mut Random) -> DNA {
-        let mut child = DNA::new(self.rounds, self.points, random);
+    fn crossover(&self, partner: &Dna, method: CrossoverMethod, random: &mut Random) -> Dna {
+        let mut child = Dna::new(self.rounds, self.points, random);
 
         match method {
             CrossoverMethod::Midpoint => {

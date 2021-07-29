@@ -144,7 +144,7 @@ pub fn setup(
 
     // HUD UI
     let root = spawn_ui_root(&mut commands, &ui_materials);
-    commands.entity(root).insert(HUD).with_children(|parent| {
+    commands.entity(root).insert(Hud).with_children(|parent| {
         parent
             .spawn_bundle(NodeBundle {
                 style: Style {
@@ -264,7 +264,7 @@ pub fn cell_selection_button_handler(
     materials: Res<Materials>,
     query: Query<(&Interaction, &ButtonHelper, &CellSelectionButton), Changed<Interaction>>,
     cell_selection_ui_query: Query<Entity, With<CellSelection>>,
-    hud_query: Query<Entity, With<HUD>>,
+    hud_query: Query<Entity, With<Hud>>,
     mut visible_query: Query<&mut Visible>,
     children_query: Query<&Children>,
 
@@ -366,6 +366,7 @@ pub fn health_changed_event_handler(
 }
 
 /// Automata action handler
+#[allow(clippy::needless_return)]
 pub fn automata_action(round: Res<GameRound>) {
     if round.stage != GameStage::Running {
         return;

@@ -75,4 +75,4 @@ pub struct AutomataHealthText {
 pub struct CellSelection;
 
 /// HUD tag
-pub struct HUD;
+pub struct Hud;

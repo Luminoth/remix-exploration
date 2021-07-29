@@ -130,7 +130,7 @@ pub struct AIAutomataPopulation {
     mutation_rate: f64,
 
     population: Vec<AIAutomataStats>,
-    mating_pool: Vec<DNA>,
+    mating_pool: Vec<Dna>,
 }
 
 impl AIAutomataPopulation {
