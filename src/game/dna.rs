@@ -24,6 +24,8 @@ struct StatSetFitness {
     dexterity: f32,
     strength: f32,
     fortitude: f32,
+    aggression: f32,
+    intellect: f32,
 }
 
 /// Genetic algorithm DNA
@@ -53,6 +55,8 @@ impl Dna {
         //self.fitness.dexterity = ???
         //self.fitness.strength = ???
         //self.fitenss.fortitude = ???
+        //self.fitness.aggression = ???
+        //self.fitness.intellect = ???
     }
 
     /// Create a child through gentics crossover
@@ -63,8 +67,10 @@ impl Dna {
             CrossoverMethod::Midpoint => {
                 child.genes.set_constitution(self.genes.constitution());
                 child.genes.set_dexterity(self.genes.dexterity());
-                child.genes.set_strength(partner.genes.strength());
+                child.genes.set_strength(self.genes.strength());
                 child.genes.set_fortitude(partner.genes.fortitude());
+                child.genes.set_aggression(partner.genes.aggression());
+                child.genes.set_intellect(partner.genes.intellect());
             }
             CrossoverMethod::Coin => {
                 child
@@ -98,6 +104,22 @@ impl Dna {
                     } else {
                         partner.genes.fortitude()
                     });
+
+                child
+                    .genes
+                    .set_aggression(if random.random_range(0..=1) == 0 {
+                        self.genes.aggression()
+                    } else {
+                        partner.genes.aggression()
+                    });
+
+                child
+                    .genes
+                    .set_intellect(if random.random_range(0..=1) == 0 {
+                        self.genes.intellect()
+                    } else {
+                        partner.genes.intellect()
+                    });
             }
         }
 
@@ -118,5 +140,7 @@ impl Dna {
         self.mutate_stat(mutation_rate, random, StatId::Dexterity);
         self.mutate_stat(mutation_rate, random, StatId::Strength);
         self.mutate_stat(mutation_rate, random, StatId::Fortitude);
+        self.mutate_stat(mutation_rate, random, StatId::Aggression);
+        self.mutate_stat(mutation_rate, random, StatId::Intellect);
     }
 }

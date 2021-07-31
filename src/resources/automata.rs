@@ -48,6 +48,18 @@ macro_rules! impl_modify_stats {
                     }
                     self.stats.set_fortitude(self.stats.fortitude() + amount);
                 }
+                StatId::Aggression => {
+                    if self.stats.aggression() + amount < 0 {
+                        return false;
+                    }
+                    self.stats.set_aggression(self.stats.aggression() + amount);
+                }
+                StatId::Intellect => {
+                    if self.stats.intellect() + amount < 0 {
+                        return false;
+                    }
+                    self.stats.set_intellect(self.stats.intellect() + amount);
+                }
             }
 
             self.points -= amount;
@@ -94,6 +106,8 @@ impl PlayerAutomataStats {
             StatId::Dexterity => self.stats.dexterity(),
             StatId::Strength => self.stats.strength(),
             StatId::Fortitude => self.stats.fortitude(),
+            StatId::Aggression => self.stats.aggression(),
+            StatId::Intellect => self.stats.intellect(),
         }
     }
 }

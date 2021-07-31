@@ -55,7 +55,7 @@ pub const CELL_WIDTH: f32 = BASE_CELL_WIDTH * CELL_X_SCALE * ASPECT_RATIO;
 pub const CELL_HEIGHT: f32 = BASE_CELL_HEIGHT * CELL_Y_SCALE;
 
 pub const ROUNDS: usize = 10;
-pub const STAT_POINTS: isize = 20;
+pub const STAT_POINTS: isize = 50;
 
 /// Initial setup
 fn setup(

@@ -31,6 +31,18 @@ const BASE_ATTACK_ABSORB: isize = 0;
 /// Fortitude modifier for calculating damage absorb
 const FORTITUDE_MOD: f32 = 0.25;
 
+/// Base chance to move towards the enemy automata
+const BASE_MOVE_TOWARDS_ENEMY: f64 = 0.1; // 10% starting chance
+
+/// Aggression modifier for calculating chance to move towards enemy automata
+const AGGRESSION_MOD: f64 = 0.05 / 5.0; // 5% chance every 5 points
+
+/// Base chance to move towards food
+const BASE_MOVE_TOWARDS_FOOD: f64 = 0.1;
+
+/// Intellect modifier for calculating chance to move towards food
+const INTELLECT_MOD: f64 = 0.05 / 5.0; // 5% chance every 5 points
+
 /// Stat identifier enum for things that need it
 #[derive(Debug, /*Inspectable,*/ Eq, PartialEq, Copy, Clone)]
 pub enum StatId {
@@ -45,6 +57,12 @@ pub enum StatId {
 
     /// Fortitude - Defense
     Fortitude,
+
+    /// Aggression - Move towards enemy automata
+    Aggression,
+
+    /// Intellect - Move towards food
+    Intellect,
 }
 
 impl StatId {
@@ -55,6 +73,8 @@ impl StatId {
             StatId::Dexterity => "Dexterity".into(),
             StatId::Strength => "Strength".into(),
             StatId::Fortitude => "Fortitude".into(),
+            StatId::Aggression => "Aggression".into(),
+            StatId::Intellect => "Intellect".into(),
         }
     }
 }
@@ -79,6 +99,8 @@ pub struct StatSet {
     dexterity: Stat,
     strength: Stat,
     fortitude: Stat,
+    aggression: Stat,
+    intellect: Stat,
 }
 
 macro_rules! impl_stat {
@@ -106,12 +128,21 @@ impl StatSet {
 
     /// Creates a new stat set
     #[allow(dead_code)]
-    pub fn new(constitution: Stat, dexterity: Stat, strength: Stat, fortitude: Stat) -> Self {
+    pub fn new(
+        constitution: Stat,
+        dexterity: Stat,
+        strength: Stat,
+        fortitude: Stat,
+        aggression: Stat,
+        intellect: Stat,
+    ) -> Self {
         Self {
             constitution,
             dexterity,
             strength,
             fortitude,
+            aggression,
+            intellect,
         }
     }
 
@@ -125,6 +156,8 @@ impl StatSet {
             StatId::Dexterity,
             StatId::Strength,
             StatId::Fortitude,
+            StatId::Aggression,
+            StatId::Intellect,
         ];
         random.shuffle(&mut buckets);
 
@@ -147,6 +180,8 @@ impl StatSet {
             StatId::Dexterity => self.dexterity(),
             StatId::Strength => self.strength(),
             StatId::Fortitude => self.fortitude(),
+            StatId::Aggression => self.aggression(),
+            StatId::Intellect => self.intellect(),
         }
     }
 
@@ -167,6 +202,12 @@ impl StatSet {
             StatId::Fortitude => {
                 // TODO:
             }
+            StatId::Aggression => {
+                // TODO:
+            }
+            StatId::Intellect => {
+                // TODO:
+            }
         }
     }
 
@@ -185,6 +226,12 @@ impl StatSet {
             }
             StatId::Fortitude => {
                 self.fortitude.value += amount;
+            }
+            StatId::Aggression => {
+                self.aggression.value += amount;
+            }
+            StatId::Intellect => {
+                self.intellect.value += amount;
             }
         }
     }
@@ -219,5 +266,27 @@ impl StatSet {
     #[inline]
     pub fn absorbed_damage(&self) -> usize {
         (BASE_ATTACK_ABSORB + (self.fortitude() as f32 * FORTITUDE_MOD) as isize).max(1) as usize
+    }
+
+    impl_stat!(aggression);
+
+    /// Gets the chance to move towards the enemy automata
+    #[inline]
+    pub fn move_towards_enemy(&self, random: &mut Random) -> (bool, f64) {
+        let target =
+            (BASE_MOVE_TOWARDS_ENEMY + self.aggression() as f64 * AGGRESSION_MOD).clamp(0.0, 0.75);
+        let roll = random.random();
+        (roll < target, roll)
+    }
+
+    impl_stat!(intellect);
+
+    /// Gets the chance to move towards food
+    #[inline]
+    pub fn move_towards_food(&self, random: &mut Random) -> (bool, f64) {
+        let target =
+            (BASE_MOVE_TOWARDS_FOOD + self.intellect() as f64 * INTELLECT_MOD).clamp(0.0, 0.75);
+        let roll = random.random();
+        (roll < target, roll)
     }
 }

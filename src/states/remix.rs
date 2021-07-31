@@ -250,7 +250,7 @@ pub fn setup(
             &fonts,
             StatId::Constitution,
             &player_stats,
-            "Starting health",
+            "Initial health",
         );
 
         spawn_stat_input(
@@ -281,6 +281,26 @@ pub fn setup(
             StatId::Fortitude,
             &player_stats,
             "Damage absorb",
+        );
+
+        spawn_stat_input(
+            parent,
+            &ui_materials,
+            &button_materials,
+            &fonts,
+            StatId::Aggression,
+            &player_stats,
+            "Chance to move towards enemy",
+        );
+
+        spawn_stat_input(
+            parent,
+            &ui_materials,
+            &button_materials,
+            &fonts,
+            StatId::Intellect,
+            &player_stats,
+            "Chance to move towards food",
         );
 
         spawn_spacer(parent, &ui_materials);
