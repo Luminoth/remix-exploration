@@ -8,6 +8,7 @@ use crate::components::ui::*;
 use crate::components::*;
 use crate::game::dna::MUTATION_RATE;
 use crate::resources::automata::*;
+use crate::resources::game::*;
 use crate::resources::gridworld::*;
 use crate::resources::ui::*;
 use crate::resources::*;
@@ -43,6 +44,9 @@ pub fn setup(
         &mut random,
     );
     commands.insert_resource(ai_population);
+
+    // round
+    commands.insert_resource(GameRound::default());
 
     // UI
     let root = spawn_ui_root(&mut commands, &ui_materials);

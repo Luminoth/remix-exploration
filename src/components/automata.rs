@@ -6,6 +6,7 @@ use bevy_inspector_egui::Inspectable;
 use crate::bundles::automata::*;
 use crate::resources;
 use crate::resources::automata::*;
+use crate::resources::*;
 use crate::util::*;
 
 /// Automata state
@@ -13,6 +14,12 @@ use crate::util::*;
 pub struct Automata {
     /// Current HP (health)
     pub health: usize,
+    // TODO:
+    // # of moves made towards enemy
+    // # of moves made towards food
+    // # of moves made total
+    // damage dealt
+    // damage absorbed
 }
 
 impl Automata {
@@ -56,12 +63,14 @@ impl Automata {
         commands: &mut Commands,
         parent: Entity,
         materials: &resources::automata::Materials,
-        cell: UVec2,
+        player_cell: UVec2,
     ) {
+        info!("Spawning player at {}", player_cell);
+
         let entity = Automata::spawn(
             commands,
             parent,
-            cell,
+            player_cell,
             materials.player_automata.clone(),
             "Player automata",
         );
@@ -74,12 +83,43 @@ impl Automata {
         commands: &mut Commands,
         parent: Entity,
         materials: &resources::automata::Materials,
-        cell: UVec2,
+        player_cell: UVec2,
+        random: &mut Random,
     ) {
+        // spawn AI in mirror cell
+        // TODO: this isn't working exactly correct
+        let midpoint = UVec2::new(crate::GRID_WIDTH as u32 / 2, crate::GRID_HEIGHT as u32 / 2);
+        let ai_cell = UVec2::new(
+            if player_cell.x < midpoint.x {
+                midpoint.x + (midpoint.x - player_cell.x)
+            } else if player_cell.x > midpoint.x {
+                midpoint.x - (player_cell.x - midpoint.x)
+            } else {
+                if random.coin() {
+                    0
+                } else {
+                    crate::GRID_WIDTH as u32 - 1
+                }
+            },
+            if player_cell.y < midpoint.y {
+                midpoint.y + (midpoint.y - player_cell.y)
+            } else if player_cell.y > midpoint.y {
+                midpoint.y - (player_cell.y - midpoint.y)
+            } else {
+                if random.coin() {
+                    0
+                } else {
+                    crate::GRID_HEIGHT as u32 - 1
+                }
+            },
+        );
+
+        info!("Spawning AI at {}", ai_cell);
+
         let entity = Automata::spawn(
             commands,
             parent,
-            cell,
+            ai_cell,
             materials.ai_automata.clone(),
             "AI automata",
         );

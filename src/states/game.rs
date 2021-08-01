@@ -69,6 +69,7 @@ fn spawn_cell_selection_row(
 pub fn setup(
     mut commands: Commands,
     gridworld: Res<GridWorld>,
+    mut round: ResMut<GameRound>,
     materials: Res<Materials>,
     ui_materials: Res<UiMaterials>,
     button_materials: Res<ButtonMaterials>,
@@ -98,8 +99,7 @@ pub fn setup(
         GridWorldCell::spawn(&mut commands, parent, cell.0, materials.cell.clone());
     }
 
-    // stage
-    commands.insert_resource(GameRound::default());
+    round.reset();
 
     // cell selection UI
     let root = spawn_ui_root(&mut commands, &ui_materials);
@@ -215,6 +215,54 @@ pub fn setup(
                         ..Default::default()
                     },
                     text: Text::with_section(
+                        "Round:",
+                        TextStyle {
+                            font: fonts.normal.clone(),
+                            font_size: 30.0,
+                            color: Color::WHITE,
+                        },
+                        Default::default(),
+                    ),
+                    visible: Visible {
+                        is_visible: false,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                });
+
+                parent.spawn_bundle(RoundTextBundle {
+                    text: TextBundle {
+                        style: Style {
+                            margin: Rect::all(Val::Px(5.0)),
+                            ..Default::default()
+                        },
+                        text: Text::with_section(
+                            format!("{}", round.round + 1),
+                            TextStyle {
+                                font: fonts.normal.clone(),
+                                font_size: 30.0,
+                                color: Color::WHITE,
+                            },
+                            Default::default(),
+                        ),
+                        visible: Visible {
+                            is_visible: false,
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                    round_text: RoundText,
+                });
+
+                // TODO: why doesn't this work?
+                spawn_spacer(parent, &ui_materials);
+
+                parent.spawn_bundle(TextBundle {
+                    style: Style {
+                        margin: Rect::all(Val::Px(5.0)),
+                        ..Default::default()
+                    },
+                    text: Text::with_section(
                         "AI Health:",
                         TextStyle {
                             font: fonts.normal.clone(),
@@ -260,6 +308,7 @@ pub fn setup(
 /// Cell selection button handler
 pub fn cell_selection_button_handler(
     mut commands: Commands,
+    mut random: ResMut<Random>,
     mut round: ResMut<GameRound>,
     materials: Res<Materials>,
     query: Query<(&Interaction, &ButtonHelper, &CellSelectionButton), Changed<Interaction>>,
@@ -301,12 +350,8 @@ pub fn cell_selection_button_handler(
                 .id();
 
             let player_cell = UVec2::new(selection.cell.x as u32, selection.cell.y as u32);
-            info!("Spawning player at {}", player_cell);
             Automata::spawn_player(&mut commands, parent, &materials, player_cell);
-
-            /*let ai_cell = UVec2::new(1, 1);
-            info!("Spawning player at {}", player_cell);
-            Automata::spawn_ai(&mut commands, parent, &materials, ai_cell);*/
+            Automata::spawn_ai(&mut commands, parent, &materials, player_cell, &mut random);
 
             game_start_events.send(GameStartEvent);
 
@@ -318,10 +363,11 @@ pub fn cell_selection_button_handler(
 /// Game start event handler
 pub fn game_start_event_handler(
     mut events: EventReader<GameStartEvent>,
+    round: Res<GameRound>,
     player_stats: Res<PlayerAutomataStats>,
-    //ai_stats: Res<AIAutomataStats>,
-    mut player_automata_query: Query<&mut Automata, With<PlayerAutomata>>,
-    //mut ai_automata_query: Query<&mut Automata, With<AIAutomata>>,
+    ai_population: Res<AIAutomataPopulation>,
+    mut player_automata_query: Query<&mut Automata, (With<PlayerAutomata>, Without<AIAutomata>)>,
+    mut ai_automata_query: Query<&mut Automata, (With<AIAutomata>, Without<PlayerAutomata>)>,
     mut health_text_query: Query<(&mut Text, &AutomataHealthText)>,
 ) {
     for _ in events.iter() {
@@ -337,8 +383,9 @@ pub fn game_start_event_handler(
             }
         }
 
-        /*if let Ok(mut automata) = ai_automata_query.single_mut() {
-            automata.reset(&*ai_stats);
+        if let Ok(mut automata) = ai_automata_query.single_mut() {
+            let ai_stats = ai_population.round_stats(round.round);
+            automata.reset(ai_stats);
 
             for (mut text, health) in health_text_query.iter_mut() {
                 if health.player {
@@ -347,7 +394,7 @@ pub fn game_start_event_handler(
 
                 text.sections[0].value = format!("{}", automata.health);
             }
-        }*/
+        }
     }
 }
 
@@ -380,5 +427,4 @@ pub fn teardown(mut commands: Commands, entities: Query<Entity>) {
     }
 
     commands.remove_resource::<ClearColor>();
-    commands.remove_resource::<GameRound>();
 }

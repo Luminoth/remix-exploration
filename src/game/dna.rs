@@ -52,6 +52,8 @@ impl Dna {
     /// Adjust genetic fitness based on round results
     pub fn fitness(&mut self, stats: &StatSet, health: usize) {
         self.fitness.constitution = health.pow(2) as f32 / stats.initial_health().pow(2) as f32;
+
+        // TODO:
         //self.fitness.dexterity = ???
         //self.fitness.strength = ???
         //self.fitenss.fortitude = ???

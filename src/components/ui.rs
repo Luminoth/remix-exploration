@@ -65,6 +65,10 @@ pub struct StatModifierText {
     pub statid: StatId,
 }
 
+/// Round text
+#[derive(Debug /*, Inspectable*/)]
+pub struct RoundText;
+
 /// Automata health text
 #[derive(Debug /*, Inspectable*/)]
 pub struct AutomataHealthText {

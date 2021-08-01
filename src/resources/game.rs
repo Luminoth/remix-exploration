@@ -27,6 +27,14 @@ pub enum GameTurn {
 
 #[derive(Debug, Default)]
 pub struct GameRound {
+    pub round: usize,
     pub stage: GameStage,
     pub turn: GameTurn,
+}
+
+impl GameRound {
+    pub fn reset(&mut self) {
+        self.stage = GameStage::default();
+        self.turn = GameTurn::default();
+    }
 }

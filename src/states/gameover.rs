@@ -7,6 +7,7 @@ use super::*;
 use crate::components::ui::*;
 use crate::components::*;
 use crate::resources::automata::*;
+use crate::resources::game::*;
 use crate::resources::ui::*;
 
 /// Game over setup
@@ -64,6 +65,7 @@ pub fn teardown(mut commands: Commands, entities: Query<Entity>) {
 
     commands.remove_resource::<PlayerAutomataStats>();
     commands.remove_resource::<AIAutomataPopulation>();
+    commands.remove_resource::<GameRound>();
 
     commands.remove_resource::<ClearColor>();
 }

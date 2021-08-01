@@ -161,6 +161,10 @@ impl AIAutomataPopulation {
             mating_pool: vec![],
         }
     }
+
+    pub fn round_stats(&self, round: usize) -> &AIAutomataStats {
+        self.population.get(round).unwrap()
+    }
 }
 
 /// Materials container resource

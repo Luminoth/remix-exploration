@@ -52,7 +52,16 @@ pub struct StatModifierTextBundle {
     pub text: TextBundle,
 }
 
-/// Stat Modifier text component bundle
+/// Round text component bundle
+#[derive(Bundle)]
+pub struct RoundTextBundle {
+    pub round_text: RoundText,
+
+    #[bundle]
+    pub text: TextBundle,
+}
+
+/// Automata health text component bundle
 #[derive(Bundle)]
 pub struct AutomataHealthTextBundle {
     pub health_text: AutomataHealthText,
