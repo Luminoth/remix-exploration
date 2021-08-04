@@ -131,6 +131,14 @@ impl Automata {
     pub fn reset(&mut self, stats: &dyn AutomataStats) {
         self.health = stats.stats().initial_health();
     }
+
+    pub fn move_action(&mut self) {
+        debug!("move");
+    }
+
+    pub fn attack_action(&mut self) {
+        debug!("attack");
+    }
 }
 
 /// Player automata tag

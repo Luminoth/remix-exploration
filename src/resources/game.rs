@@ -16,25 +16,31 @@ pub enum GameStage {
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Derivative)]
 #[derivative(Default)]
-pub enum GameTurn {
-    /// The player's turn
+pub enum GameAction {
+    /// The player's move action
     #[derivative(Default)]
-    Player,
+    PlayerMove,
 
-    /// The AI's turn
-    AI,
+    /// The player's attack action
+    PlayerAttack,
+
+    /// The AI's move action
+    AIMove,
+
+    /// The AI's attack action
+    AIAttack,
 }
 
 #[derive(Debug, Default)]
 pub struct GameRound {
     pub round: usize,
     pub stage: GameStage,
-    pub turn: GameTurn,
+    pub action: GameAction,
 }
 
 impl GameRound {
     pub fn reset(&mut self) {
         self.stage = GameStage::default();
-        self.turn = GameTurn::default();
+        self.action = GameAction::default();
     }
 }

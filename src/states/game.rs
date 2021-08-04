@@ -414,9 +414,43 @@ pub fn health_changed_event_handler(
 
 /// Automata action handler
 #[allow(clippy::needless_return)]
-pub fn automata_action(round: Res<GameRound>) {
+pub fn automata_action(
+    mut round: ResMut<GameRound>,
+    mut player_automata_query: Query<&mut Automata, (With<PlayerAutomata>, Without<AIAutomata>)>,
+    mut ai_automata_query: Query<&mut Automata, (With<AIAutomata>, Without<PlayerAutomata>)>,
+) {
     if round.stage != GameStage::Running {
         return;
+    }
+
+    // TODO: we need a cooldown on taking actions
+    // so things don't progress too fast
+
+    if let Ok(mut player) = player_automata_query.single_mut() {
+        if let Ok(mut ai) = ai_automata_query.single_mut() {
+            match round.action {
+                GameAction::PlayerMove => {
+                    player.move_action();
+
+                    round.action = GameAction::PlayerAttack;
+                }
+                GameAction::PlayerAttack => {
+                    player.attack_action();
+
+                    round.action = GameAction::AIMove;
+                }
+                GameAction::AIMove => {
+                    ai.move_action();
+
+                    round.action = GameAction::AIAttack;
+                }
+                GameAction::AIAttack => {
+                    ai.attack_action();
+
+                    round.action = GameAction::PlayerMove;
+                }
+            };
+        }
     }
 }
 
