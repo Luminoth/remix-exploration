@@ -1,5 +1,7 @@
 //! Automata components
 
+use std::cmp::Ordering;
+
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
@@ -90,26 +92,26 @@ impl Automata {
         // TODO: this isn't working exactly correct
         let midpoint = UVec2::new(crate::GRID_WIDTH as u32 / 2, crate::GRID_HEIGHT as u32 / 2);
         let ai_cell = UVec2::new(
-            if player_cell.x < midpoint.x {
-                midpoint.x + (midpoint.x - player_cell.x)
-            } else if player_cell.x > midpoint.x {
-                midpoint.x - (player_cell.x - midpoint.x)
-            } else {
-                if random.coin() {
-                    0
-                } else {
-                    crate::GRID_WIDTH as u32 - 1
+            match player_cell.x.cmp(&midpoint.x) {
+                Ordering::Less => midpoint.x + (midpoint.x - player_cell.x),
+                Ordering::Greater => midpoint.x - (player_cell.x - midpoint.x),
+                _ => {
+                    if random.coin() {
+                        0
+                    } else {
+                        crate::GRID_WIDTH as u32 - 1
+                    }
                 }
             },
-            if player_cell.y < midpoint.y {
-                midpoint.y + (midpoint.y - player_cell.y)
-            } else if player_cell.y > midpoint.y {
-                midpoint.y - (player_cell.y - midpoint.y)
-            } else {
-                if random.coin() {
-                    0
-                } else {
-                    crate::GRID_HEIGHT as u32 - 1
+            match player_cell.y.cmp(&midpoint.y) {
+                Ordering::Less => midpoint.y + (midpoint.y - player_cell.y),
+                Ordering::Greater => midpoint.y - (player_cell.y - midpoint.y),
+                _ => {
+                    if random.coin() {
+                        0
+                    } else {
+                        crate::GRID_HEIGHT as u32 - 1
+                    }
                 }
             },
         );
