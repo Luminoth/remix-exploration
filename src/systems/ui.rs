@@ -7,23 +7,20 @@ use crate::resources::ui::*;
 
 /// Generic button update
 pub fn update_buttons(
-    materials: Res<ButtonMaterials>,
-    mut query: Query<
-        (&Interaction, &mut Handle<ColorMaterial>, &ButtonHelper),
-        Changed<Interaction>,
-    >,
+    colors: Res<ButtonColors>,
+    mut query: Query<(&Interaction, &mut UiColor, &ButtonHelper), Changed<Interaction>>,
 ) {
-    for (interaction, mut material, helper) in query.iter_mut() {
+    for (interaction, mut color, helper) in query.iter_mut() {
         if helper.interactable() {
             match *interaction {
                 Interaction::Clicked => {
-                    *material = materials.pressed.clone();
+                    *color = colors.pressed;
                 }
                 Interaction::Hovered => {
-                    *material = materials.hovered.clone();
+                    *color = colors.hovered;
                 }
                 Interaction::None => {
-                    *material = materials.normal.clone();
+                    *color = colors.normal;
                 }
             }
         }

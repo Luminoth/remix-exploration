@@ -3,16 +3,15 @@
 use std::cmp::Ordering;
 
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
+use bevy_inspector_egui::prelude::*;
 
 use crate::bundles::automata::*;
-use crate::resources;
 use crate::resources::automata::*;
 use crate::resources::*;
 use crate::util::*;
 
 /// Automata state
-#[derive(Debug, Inspectable, Default)]
+#[derive(Debug, Default, Component, Inspectable)]
 pub struct Automata {
     /// Current HP (health)
     pub health: usize,
@@ -29,7 +28,7 @@ impl Automata {
         commands: &mut Commands,
         parent: Entity,
         cell: UVec2,
-        material: Handle<ColorMaterial>,
+        color: Color,
         name: impl Into<String>,
     ) -> Entity {
         let position = cell_position(cell, 1.0);
@@ -47,8 +46,11 @@ impl Automata {
                 .insert(Name::new(name.into()))
                 .with_children(|parent| {
                     parent.spawn_bundle(SpriteBundle {
-                        material,
-                        sprite: Sprite::new(Vec2::new(crate::CELL_WIDTH, crate::CELL_HEIGHT)),
+                        sprite: Sprite {
+                            color,
+                            custom_size: Some(Vec2::new(crate::CELL_WIDTH, crate::CELL_HEIGHT)),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     });
                 })
@@ -61,21 +63,10 @@ impl Automata {
     }
 
     /// Spawn a new player automata
-    pub fn spawn_player(
-        commands: &mut Commands,
-        parent: Entity,
-        materials: &resources::automata::Materials,
-        player_cell: UVec2,
-    ) {
+    pub fn spawn_player(commands: &mut Commands, parent: Entity, color: Color, player_cell: UVec2) {
         info!("Spawning player at {}", player_cell);
 
-        let entity = Automata::spawn(
-            commands,
-            parent,
-            player_cell,
-            materials.player_automata.clone(),
-            "Player automata",
-        );
+        let entity = Automata::spawn(commands, parent, player_cell, color, "Player automata");
 
         commands.entity(entity).insert(PlayerAutomata);
     }
@@ -84,7 +75,7 @@ impl Automata {
     pub fn spawn_ai(
         commands: &mut Commands,
         parent: Entity,
-        materials: &resources::automata::Materials,
+        color: Color,
         player_cell: UVec2,
         random: &mut Random,
     ) {
@@ -118,13 +109,7 @@ impl Automata {
 
         info!("Spawning AI at {}", ai_cell);
 
-        let entity = Automata::spawn(
-            commands,
-            parent,
-            ai_cell,
-            materials.ai_automata.clone(),
-            "AI automata",
-        );
+        let entity = Automata::spawn(commands, parent, ai_cell, color, "AI automata");
 
         commands.entity(entity).insert(AIAutomata);
     }
@@ -144,9 +129,9 @@ impl Automata {
 }
 
 /// Player automata tag
-#[derive(Debug, Inspectable, Default)]
+#[derive(Debug, Default, Component, Inspectable)]
 pub struct PlayerAutomata;
 
 /// AI automata state
-#[derive(Debug, Inspectable)]
+#[derive(Debug, Component, Inspectable)]
 pub struct AIAutomata;

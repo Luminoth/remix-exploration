@@ -15,8 +15,7 @@ use crate::resources::ui::*;
 /// Spawn a stat input
 fn spawn_stat_input(
     parent: &mut ChildBuilder,
-    ui_materials: &UiMaterials,
-    button_materials: &ButtonMaterials,
+    button_colors: &ButtonColors,
     fonts: &Fonts,
     statid: StatId,
     player_stats: &PlayerAutomataStats,
@@ -29,7 +28,7 @@ fn spawn_stat_input(
                 align_items: AlignItems::Center,
                 ..Default::default()
             },
-            material: ui_materials.none.clone(),
+            color: Color::NONE.into(),
             ..Default::default()
         })
         .insert(Name::new(statid.name()))
@@ -79,7 +78,7 @@ fn spawn_stat_input(
                         align_items: AlignItems::Center,
                         ..Default::default()
                     },
-                    material: ui_materials.none.clone(),
+                    color: Color::NONE.into(),
                     ..Default::default()
                 })
                 .insert(Name::new("Modifier Buttons"))
@@ -94,7 +93,7 @@ fn spawn_stat_input(
                                     align_items: AlignItems::Center,
                                     ..Default::default()
                                 },
-                                material: button_materials.normal.clone(),
+                                color: Color::NONE.into(),
                                 ..Default::default()
                             },
                             helper: ButtonHelper::new(true),
@@ -128,7 +127,7 @@ fn spawn_stat_input(
                                     align_items: AlignItems::Center,
                                     ..Default::default()
                                 },
-                                material: button_materials.disabled.clone(),
+                                color: button_colors.disabled,
                                 ..Default::default()
                             },
                             helper: ButtonHelper::new(false),
@@ -176,8 +175,7 @@ fn spawn_stat_input(
 pub fn setup(
     mut commands: Commands,
     player_stats: Res<PlayerAutomataStats>,
-    ui_materials: Res<UiMaterials>,
-    button_materials: Res<ButtonMaterials>,
+    button_colors: Res<ButtonColors>,
     fonts: Res<Fonts>,
 ) {
     // cameras
@@ -188,7 +186,7 @@ pub fn setup(
         .insert(Name::new("UI Camera"));
 
     // UI
-    let root = spawn_ui_root(&mut commands, &ui_materials);
+    let root = spawn_ui_root(&mut commands);
     commands.entity(root).with_children(|parent| {
         spawn_header(parent, &fonts, "Remix Your Automaton");
 
@@ -200,7 +198,7 @@ pub fn setup(
                     align_items: AlignItems::Center,
                     ..Default::default()
                 },
-                material: ui_materials.none.clone(),
+                color: Color::NONE.into(),
                 ..Default::default()
             })
             .insert(Name::new("Stat Points"))
@@ -245,8 +243,7 @@ pub fn setup(
 
         spawn_stat_input(
             parent,
-            &ui_materials,
-            &button_materials,
+            &button_colors,
             &fonts,
             StatId::Constitution,
             &player_stats,
@@ -255,8 +252,7 @@ pub fn setup(
 
         spawn_stat_input(
             parent,
-            &ui_materials,
-            &button_materials,
+            &button_colors,
             &fonts,
             StatId::Dexterity,
             &player_stats,
@@ -265,8 +261,7 @@ pub fn setup(
 
         spawn_stat_input(
             parent,
-            &ui_materials,
-            &button_materials,
+            &button_colors,
             &fonts,
             StatId::Strength,
             &player_stats,
@@ -275,8 +270,7 @@ pub fn setup(
 
         spawn_stat_input(
             parent,
-            &ui_materials,
-            &button_materials,
+            &button_colors,
             &fonts,
             StatId::Fortitude,
             &player_stats,
@@ -285,8 +279,7 @@ pub fn setup(
 
         spawn_stat_input(
             parent,
-            &ui_materials,
-            &button_materials,
+            &button_colors,
             &fonts,
             StatId::Aggression,
             &player_stats,
@@ -295,43 +288,31 @@ pub fn setup(
 
         spawn_stat_input(
             parent,
-            &ui_materials,
-            &button_materials,
+            &button_colors,
             &fonts,
             StatId::Intellect,
             &player_stats,
             "Chance to move towards food",
         );
 
-        spawn_spacer(parent, &ui_materials);
+        spawn_spacer(parent);
 
-        spawn_ok_action(
-            parent,
-            &ui_materials,
-            &button_materials,
-            &fonts,
-            "Run",
-            false,
-        );
+        spawn_ok_action(parent, &button_colors, &fonts, "Run", false);
     });
 }
 
 /// Stat modified event handler
 pub fn stat_modified_event_handler(
     stats: ResMut<PlayerAutomataStats>,
-    button_materials: Res<ButtonMaterials>,
+    button_colors: Res<ButtonColors>,
     mut events: EventReader<StatModifiedEvent>,
     mut text_query: Query<(&mut Text, &StatModifierText), Without<PointsText>>,
     mut points_text_query: Query<&mut Text, With<PointsText>>,
     mut modifier_query: Query<
-        (
-            &mut ButtonHelper,
-            &mut Handle<ColorMaterial>,
-            &StatModifierButton,
-        ),
+        (&mut ButtonHelper, &mut UiColor, &StatModifierButton),
         Without<ActionButton>,
     >,
-    mut action_query: Query<(&mut ButtonHelper, &mut Handle<ColorMaterial>), With<ActionButton>>,
+    mut action_query: Query<(&mut ButtonHelper, &mut UiColor), With<ActionButton>>,
 ) {
     for event in events.iter() {
         for (mut text, modifier) in text_query.iter_mut() {
@@ -340,28 +321,28 @@ pub fn stat_modified_event_handler(
             }
         }
 
-        if let Ok(mut text) = points_text_query.single_mut() {
+        if let Ok(mut text) = points_text_query.get_single_mut() {
             text.sections[0].value = format!("{}", stats.points());
         }
 
-        for (mut helper, mut material, modifier) in modifier_query.iter_mut() {
+        for (mut helper, mut color, modifier) in modifier_query.iter_mut() {
             match modifier.modifier.cmp(&0) {
                 // down
                 std::cmp::Ordering::Less => helper.set_interactable(
                     stats.value(modifier.statid) > 0,
-                    &mut material,
-                    &button_materials,
+                    &mut color,
+                    &button_colors,
                 ),
                 // up
                 std::cmp::Ordering::Greater => {
-                    helper.set_interactable(stats.points() > 0, &mut material, &button_materials)
+                    helper.set_interactable(stats.points() > 0, &mut color, &button_colors)
                 }
                 _ => (),
             }
         }
 
-        if let Ok((mut action_helper, mut material)) = action_query.single_mut() {
-            action_helper.set_interactable(stats.points() == 0, &mut material, &button_materials);
+        if let Ok((mut action_helper, mut color)) = action_query.get_single_mut() {
+            action_helper.set_interactable(stats.points() == 0, &mut color, &button_colors);
         }
     }
 }
@@ -375,7 +356,7 @@ pub fn modifier_button_handler(
     >,
     mut state_modified_events: EventWriter<StatModifiedEvent>,
 ) {
-    if let Ok((interaction, helper, modifier)) = modifier_query.single_mut() {
+    if let Ok((interaction, helper, modifier)) = modifier_query.get_single_mut() {
         #[allow(clippy::collapsible_if)]
         if helper.interactable() && *interaction == Interaction::Clicked {
             if stats.modify(modifier.statid, modifier.modifier) {
@@ -393,7 +374,7 @@ pub fn action_button_handler(
     >,
     mut state: ResMut<State<GameState>>,
 ) {
-    if let Ok((interaction, helper)) = action_query.single_mut() {
+    if let Ok((interaction, helper)) = action_query.get_single_mut() {
         if helper.interactable() && *interaction == Interaction::Clicked {
             state.set(GameState::Game).unwrap();
         }

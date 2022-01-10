@@ -8,8 +8,8 @@ use crate::systems::ui::*;
 pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         // systems
-        app.add_system(update_buttons.system());
+        app.add_system(update_buttons);
     }
 }

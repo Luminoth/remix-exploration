@@ -11,12 +11,7 @@ use crate::resources::game::*;
 use crate::resources::ui::*;
 
 /// Game over setup
-pub fn setup(
-    mut commands: Commands,
-    ui_materials: Res<UiMaterials>,
-    button_materials: Res<ButtonMaterials>,
-    fonts: Res<Fonts>,
-) {
+pub fn setup(mut commands: Commands, button_colors: Res<ButtonColors>, fonts: Res<Fonts>) {
     // cameras
     commands.insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)));
     commands
@@ -25,20 +20,13 @@ pub fn setup(
         .insert(Name::new("UI Camera"));
 
     // UI
-    let root = spawn_ui_root(&mut commands, &ui_materials);
+    let root = spawn_ui_root(&mut commands);
     commands.entity(root).with_children(|parent| {
         spawn_header(parent, &fonts, "Game Over");
 
-        spawn_spacer(parent, &ui_materials);
+        spawn_spacer(parent);
 
-        spawn_ok_action(
-            parent,
-            &ui_materials,
-            &button_materials,
-            &fonts,
-            "Continue",
-            true,
-        );
+        spawn_ok_action(parent, &button_colors, &fonts, "Continue", true);
     });
 }
 
@@ -50,7 +38,7 @@ pub fn action_button_handler(
     >,
     mut state: ResMut<State<GameState>>,
 ) {
-    if let Ok((interaction, helper)) = action_query.single_mut() {
+    if let Ok((interaction, helper)) = action_query.get_single_mut() {
         if helper.interactable() && *interaction == Interaction::Clicked {
             state.set(GameState::Intro).unwrap();
         }

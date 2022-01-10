@@ -22,12 +22,7 @@ const GRID_BUTTON_WIDTH: f32 = crate::WINDOW_WIDTH / crate::GRID_WIDTH as f32;
 const GRID_BUTTON_HEIGHT: f32 = crate::WINDOW_HEIGHT / crate::GRID_HEIGHT as f32;
 
 /// Spawn a cell selection row
-fn spawn_cell_selection_row(
-    parent: &mut ChildBuilder,
-    ui_materials: &UiMaterials,
-    button_materials: &ButtonMaterials,
-    row: usize,
-) {
+fn spawn_cell_selection_row(parent: &mut ChildBuilder, button_colors: &ButtonColors, row: usize) {
     parent
         .spawn_bundle(NodeBundle {
             style: Style {
@@ -35,7 +30,7 @@ fn spawn_cell_selection_row(
                 align_items: AlignItems::Center,
                 ..Default::default()
             },
-            material: ui_materials.none.clone(),
+            color: Color::NONE.into(),
             ..Default::default()
         })
         .insert(Name::new("Cell Selection Row"))
@@ -53,7 +48,7 @@ fn spawn_cell_selection_row(
                             align_items: AlignItems::Center,
                             ..Default::default()
                         },
-                        material: button_materials.normal.clone(),
+                        color: button_colors.normal,
                         ..Default::default()
                     },
                     helper: ButtonHelper::new(true),
@@ -70,9 +65,8 @@ pub fn setup(
     mut commands: Commands,
     gridworld: Res<GridWorld>,
     mut round: ResMut<GameRound>,
-    materials: Res<Materials>,
-    ui_materials: Res<UiMaterials>,
-    button_materials: Res<ButtonMaterials>,
+    colors: Res<AutomataColors>,
+    button_colors: Res<ButtonColors>,
     fonts: Res<Fonts>,
 ) {
     // cameras
@@ -96,13 +90,13 @@ pub fn setup(
         .insert(Name::new("GridWorld"))
         .id();
     for cell in gridworld.cells.iter() {
-        GridWorldCell::spawn(&mut commands, parent, cell.0, materials.cell.clone());
+        GridWorldCell::spawn(&mut commands, parent, cell.0, colors.cell);
     }
 
     round.reset();
 
     // cell selection UI
-    let root = spawn_ui_root(&mut commands, &ui_materials);
+    let root = spawn_ui_root(&mut commands);
     commands
         .entity(root)
         .insert(CellSelection)
@@ -114,7 +108,7 @@ pub fn setup(
                         align_items: AlignItems::FlexStart,
                         ..Default::default()
                     },
-                    material: ui_materials.none.clone(),
+                    color: Color::NONE.into(),
                     ..Default::default()
                 })
                 .insert(Name::new("Cell Selection"))
@@ -138,12 +132,12 @@ pub fn setup(
                 });
 
             for row in 0..GRID_HEIGHT {
-                spawn_cell_selection_row(parent, &ui_materials, &button_materials, row);
+                spawn_cell_selection_row(parent, &button_colors, row);
             }
         });
 
     // HUD UI
-    let root = spawn_ui_root(&mut commands, &ui_materials);
+    let root = spawn_ui_root(&mut commands);
     commands.entity(root).insert(Hud).with_children(|parent| {
         parent
             .spawn_bundle(NodeBundle {
@@ -152,11 +146,8 @@ pub fn setup(
                     align_items: AlignItems::FlexStart,
                     ..Default::default()
                 },
-                material: ui_materials.none.clone(),
-                visible: Visible {
-                    is_visible: false,
-                    ..Default::default()
-                },
+                color: Color::NONE.into(),
+                visibility: Visibility { is_visible: false },
                 ..Default::default()
             })
             .insert(Name::new("HUD"))
@@ -175,10 +166,7 @@ pub fn setup(
                         },
                         Default::default(),
                     ),
-                    visible: Visible {
-                        is_visible: false,
-                        ..Default::default()
-                    },
+                    visibility: Visibility { is_visible: false },
                     ..Default::default()
                 });
 
@@ -197,17 +185,14 @@ pub fn setup(
                             },
                             Default::default(),
                         ),
-                        visible: Visible {
-                            is_visible: false,
-                            ..Default::default()
-                        },
+                        visibility: Visibility { is_visible: false },
                         ..Default::default()
                     },
                     health_text: AutomataHealthText { player: true },
                 });
 
                 // TODO: why doesn't this work?
-                spawn_spacer(parent, &ui_materials);
+                spawn_spacer(parent);
 
                 parent.spawn_bundle(TextBundle {
                     style: Style {
@@ -223,10 +208,7 @@ pub fn setup(
                         },
                         Default::default(),
                     ),
-                    visible: Visible {
-                        is_visible: false,
-                        ..Default::default()
-                    },
+                    visibility: Visibility { is_visible: false },
                     ..Default::default()
                 });
 
@@ -245,17 +227,14 @@ pub fn setup(
                             },
                             Default::default(),
                         ),
-                        visible: Visible {
-                            is_visible: false,
-                            ..Default::default()
-                        },
+                        visibility: Visibility { is_visible: false },
                         ..Default::default()
                     },
                     round_text: RoundText,
                 });
 
                 // TODO: why doesn't this work?
-                spawn_spacer(parent, &ui_materials);
+                spawn_spacer(parent);
 
                 parent.spawn_bundle(TextBundle {
                     style: Style {
@@ -271,10 +250,7 @@ pub fn setup(
                         },
                         Default::default(),
                     ),
-                    visible: Visible {
-                        is_visible: false,
-                        ..Default::default()
-                    },
+                    visibility: Visibility { is_visible: false },
                     ..Default::default()
                 });
 
@@ -293,10 +269,7 @@ pub fn setup(
                             },
                             Default::default(),
                         ),
-                        visible: Visible {
-                            is_visible: false,
-                            ..Default::default()
-                        },
+                        visibility: Visibility { is_visible: false },
                         ..Default::default()
                     },
                     health_text: AutomataHealthText { player: false },
@@ -310,11 +283,11 @@ pub fn cell_selection_button_handler(
     mut commands: Commands,
     mut random: ResMut<Random>,
     mut round: ResMut<GameRound>,
-    materials: Res<Materials>,
+    colors: Res<AutomataColors>,
     query: Query<(&Interaction, &ButtonHelper, &CellSelectionButton), Changed<Interaction>>,
     cell_selection_ui_query: Query<Entity, With<CellSelection>>,
     hud_query: Query<Entity, With<Hud>>,
-    mut visible_query: Query<&mut Visible>,
+    mut visibility_query: Query<&mut Visibility>,
     children_query: Query<&Children>,
 
     mut game_start_events: EventWriter<GameStartEvent>,
@@ -323,25 +296,22 @@ pub fn cell_selection_button_handler(
         return;
     }
 
-    if let Ok((interaction, helper, selection)) = query.single() {
-        #[allow(clippy::collapsible_if)]
+    if let Ok((interaction, helper, selection)) = query.get_single() {
         if helper.interactable() && *interaction == Interaction::Clicked {
             // hide cell selection UI
-            if let Ok(cell_selection_ui) = cell_selection_ui_query.single() {
-                debug!("Disabling cell selection");
-                set_visible_recursive(
-                    cell_selection_ui,
-                    false,
-                    &mut visible_query,
-                    &children_query,
-                );
-            }
+            let cell_selection_ui = cell_selection_ui_query.single();
+            debug!("Disabling cell selection");
+            set_visible_recursive(
+                cell_selection_ui,
+                false,
+                &mut visibility_query,
+                &children_query,
+            );
 
             // show HUD
-            if let Ok(hud) = hud_query.single() {
-                debug!("Enabling HUD...");
-                set_visible_recursive(hud, true, &mut visible_query, &children_query);
-            }
+            let hud = hud_query.single();
+            debug!("Enabling HUD...");
+            set_visible_recursive(hud, true, &mut visibility_query, &children_query);
 
             // spawn automata
             let parent = commands
@@ -350,8 +320,14 @@ pub fn cell_selection_button_handler(
                 .id();
 
             let player_cell = UVec2::new(selection.cell.x as u32, selection.cell.y as u32);
-            Automata::spawn_player(&mut commands, parent, &materials, player_cell);
-            Automata::spawn_ai(&mut commands, parent, &materials, player_cell, &mut random);
+            Automata::spawn_player(&mut commands, parent, colors.player_automata, player_cell);
+            Automata::spawn_ai(
+                &mut commands,
+                parent,
+                colors.ai_automata,
+                player_cell,
+                &mut random,
+            );
 
             game_start_events.send(GameStartEvent);
 
@@ -371,7 +347,7 @@ pub fn game_start_event_handler(
     mut health_text_query: Query<(&mut Text, &AutomataHealthText)>,
 ) {
     for _ in events.iter() {
-        if let Ok(mut automata) = player_automata_query.single_mut() {
+        if let Ok(mut automata) = player_automata_query.get_single_mut() {
             automata.reset(&*player_stats);
 
             for (mut text, health) in health_text_query.iter_mut() {
@@ -383,7 +359,7 @@ pub fn game_start_event_handler(
             }
         }
 
-        if let Ok(mut automata) = ai_automata_query.single_mut() {
+        if let Ok(mut automata) = ai_automata_query.get_single_mut() {
             let ai_stats = ai_population.round_stats(round.round);
             automata.reset(ai_stats);
 
@@ -426,8 +402,8 @@ pub fn automata_action(
     // TODO: we need a cooldown on taking actions
     // so things don't progress too fast
 
-    if let Ok(mut player) = player_automata_query.single_mut() {
-        if let Ok(mut ai) = ai_automata_query.single_mut() {
+    if let Ok(mut player) = player_automata_query.get_single_mut() {
+        if let Ok(mut ai) = ai_automata_query.get_single_mut() {
             match round.action {
                 GameAction::PlayerMove => {
                     player.move_action();

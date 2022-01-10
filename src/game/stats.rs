@@ -2,7 +2,7 @@
 
 use std::borrow::Cow;
 
-use bevy_inspector_egui::Inspectable;
+use bevy_inspector_egui::prelude::*;
 use paste::paste;
 
 use crate::resources::*;
@@ -44,7 +44,7 @@ const BASE_MOVE_TOWARDS_FOOD: f64 = 0.1;
 const INTELLECT_MOD: f64 = 0.05 / 5.0; // 5% chance every 5 points
 
 /// Stat identifier enum for things that need it
-#[derive(Debug, /*Inspectable,*/ Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Inspectable)]
 pub enum StatId {
     /// Constitution - HP
     Constitution,

@@ -30,7 +30,7 @@ pub enum GameState {
 // TODO: move these UI helpers somewhere else
 
 /// Spawn a UI root node
-fn spawn_ui_root(commands: &mut Commands, ui_materials: &UiMaterials) -> Entity {
+fn spawn_ui_root(commands: &mut Commands) -> Entity {
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
@@ -40,7 +40,7 @@ fn spawn_ui_root(commands: &mut Commands, ui_materials: &UiMaterials) -> Entity 
                 align_items: AlignItems::Center,
                 ..Default::default()
             },
-            material: ui_materials.none.clone(),
+            color: Color::NONE.into(),
             ..Default::default()
         })
         .insert(Name::new("UI Root"))
@@ -48,14 +48,14 @@ fn spawn_ui_root(commands: &mut Commands, ui_materials: &UiMaterials) -> Entity 
 }
 
 /// Spawn a UI spacer
-fn spawn_spacer(parent: &mut ChildBuilder, ui_materials: &UiMaterials) {
+fn spawn_spacer(parent: &mut ChildBuilder) {
     parent.spawn_bundle(NodeBundle {
         style: Style {
             size: Size::new(Val::Auto, Val::Auto),
             flex_grow: 1.0,
             ..Default::default()
         },
-        material: ui_materials.none.clone(),
+        color: Color::NONE.into(),
         ..Default::default()
     });
 }
@@ -83,8 +83,7 @@ fn spawn_header(parent: &mut ChildBuilder, fonts: &Fonts, text: impl Into<String
 /// Spawn a UI OK action row
 fn spawn_ok_action(
     parent: &mut ChildBuilder,
-    ui_materials: &UiMaterials,
-    button_materials: &ButtonMaterials,
+    button_colors: &ButtonColors,
     fonts: &Fonts,
     text: impl Into<String>,
     interactable: bool,
@@ -96,7 +95,7 @@ fn spawn_ok_action(
                 align_items: AlignItems::Center,
                 ..Default::default()
             },
-            material: ui_materials.none.clone(),
+            color: Color::NONE.into(),
             ..Default::default()
         })
         .insert(Name::new("Actions"))
@@ -111,7 +110,7 @@ fn spawn_ok_action(
                             align_items: AlignItems::Center,
                             ..Default::default()
                         },
-                        material: button_materials.normal.clone(),
+                        color: button_colors.normal,
                         ..Default::default()
                     },
                     helper: ButtonHelper::new(interactable),

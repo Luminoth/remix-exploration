@@ -23,7 +23,7 @@ mod util;
 use bevy::diagnostic::*;
 use bevy::prelude::*;
 use bevy_egui::{EguiPlugin, EguiSettings};
-use bevy_inspector_egui::{InspectableRegistry, WorldInspectorParams, WorldInspectorPlugin};
+use bevy_inspector_egui::{RegisterInspectable, WorldInspectorParams, WorldInspectorPlugin};
 
 use plugins::debug::*;
 use plugins::states::*;
@@ -58,11 +58,7 @@ pub const ROUNDS: usize = 10;
 pub const STAT_POINTS: isize = 50;
 
 /// Initial setup
-fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     #[cfg(debug_assertions)]
     asset_server.watch_for_changes().unwrap();
 
@@ -75,23 +71,18 @@ fn setup(
     commands.insert_resource(fonts);
 
     // materials
-    let automata_materials = resources::automata::Materials {
-        cell: materials.add(Color::BISQUE.into()),
-        player_automata: materials.add(Color::TEAL.into()),
-        ai_automata: materials.add(Color::ORANGE_RED.into()),
+    let automata_materials = resources::automata::AutomataColors {
+        cell: Color::BISQUE,
+        player_automata: Color::TEAL,
+        ai_automata: Color::ORANGE_RED,
     };
     commands.insert_resource(automata_materials);
 
-    let ui_materials = UiMaterials {
-        none: materials.add(Color::NONE.into()),
-    };
-    commands.insert_resource(ui_materials);
-
-    let button_materials = ButtonMaterials {
-        disabled: materials.add(Color::DARK_GRAY.into()),
-        normal: materials.add(Color::GRAY.into()),
-        hovered: materials.add(Color::WHITE.into()),
-        pressed: materials.add(Color::GRAY.into()),
+    let button_materials = ButtonColors {
+        disabled: Color::DARK_GRAY.into(),
+        normal: Color::GRAY.into(),
+        hovered: Color::WHITE.into(),
+        pressed: Color::GRAY.into(),
     };
     commands.insert_resource(button_materials);
 
@@ -105,7 +96,7 @@ fn main() {
         error!(%data, "Unexpected panic!");
     }));
 
-    let mut app = App::build();
+    let mut app = App::new();
 
     // basic bevy
     app.insert_resource(WindowDescriptor {
@@ -134,7 +125,23 @@ fn main() {
         despawnable_entities: true,
         ..Default::default()
     })
-    .add_plugin(WorldInspectorPlugin::new());
+    .add_plugin(WorldInspectorPlugin::new())
+    // inspectable types
+    .register_inspectable::<components::MainCamera>()
+    .register_inspectable::<components::UiCamera>()
+    .register_inspectable::<components::automata::Automata>()
+    .register_inspectable::<components::automata::PlayerAutomata>()
+    .register_inspectable::<components::automata::AIAutomata>()
+    .register_inspectable::<components::gridworld::GridWorldCell>()
+    .register_inspectable::<components::ui::ButtonHelper>()
+    .register_inspectable::<components::ui::ActionButton>()
+    .register_inspectable::<components::ui::StatModifierButton>()
+    .register_inspectable::<components::ui::PointsText>()
+    .register_inspectable::<components::ui::StatModifierText>()
+    .register_inspectable::<game::stats::StatId>()
+    .register_inspectable::<game::stats::Stat>()
+    .register_inspectable::<game::stats::StatSet>()
+    .register_inspectable::<game::dna::Dna>();
 
     // plugins
     app.add_plugin(DebugPlugin)
@@ -145,28 +152,7 @@ fn main() {
     app.add_state(GameState::Intro);
 
     // main setup
-    app.add_startup_system(setup.system());
-
-    // register components for inspector
-    let mut registry = app
-        .world_mut()
-        .get_resource_or_insert_with(InspectableRegistry::default);
-
-    registry.register::<components::MainCamera>();
-    registry.register::<components::UiCamera>();
-    registry.register::<components::automata::Automata>();
-    registry.register::<components::automata::PlayerAutomata>();
-    registry.register::<components::automata::AIAutomata>();
-    registry.register::<components::gridworld::GridWorldCell>();
-    registry.register::<components::ui::ButtonHelper>();
-    registry.register::<components::ui::ActionButton>();
-    //registry.register::<components::ui::StatModifierButton>();
-    registry.register::<components::ui::PointsText>();
-    //registry.register::<components::ui::StatModifierText>();
-    //registry.register::<game::stats::StatId>();
-    registry.register::<game::stats::Stat>();
-    registry.register::<game::stats::StatSet>();
-    registry.register::<game::dna::Dna>();
+    app.add_startup_system(setup);
 
     app.run();
 }

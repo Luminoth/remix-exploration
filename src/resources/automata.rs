@@ -167,10 +167,10 @@ impl AIAutomataPopulation {
     }
 }
 
-/// Materials container resource
-pub struct Materials {
-    pub cell: Handle<ColorMaterial>,
+/// Automata colors container resource
+pub struct AutomataColors {
+    pub cell: Color,
 
-    pub player_automata: Handle<ColorMaterial>,
-    pub ai_automata: Handle<ColorMaterial>,
+    pub player_automata: Color,
+    pub ai_automata: Color,
 }

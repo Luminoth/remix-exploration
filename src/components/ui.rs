@@ -1,13 +1,13 @@
 //! UI components
 
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
+use bevy_inspector_egui::prelude::*;
 
 use crate::game::stats::*;
 use crate::resources::ui::*;
 
 /// Button helper
-#[derive(Debug, Inspectable, Default)]
+#[derive(Debug, Default, Component, Inspectable)]
 pub struct ButtonHelper {
     interactable: bool,
 }
@@ -25,58 +25,60 @@ impl ButtonHelper {
     pub fn set_interactable(
         &mut self,
         interactable: bool,
-        material: &mut Handle<ColorMaterial>,
-        materials: &ButtonMaterials,
+        color: &mut UiColor,
+        colors: &ButtonColors,
     ) {
         self.interactable = interactable;
-        *material = if self.interactable {
-            materials.normal.clone()
+        *color = if self.interactable {
+            colors.normal
         } else {
-            materials.disabled.clone()
+            colors.disabled
         };
     }
 }
 
 /// Action button
-#[derive(Debug, Inspectable, Default)]
+#[derive(Debug, Default, Component, Inspectable)]
 pub struct ActionButton;
 
 /// Cell selection button
-#[derive(Debug, Inspectable, Default)]
+#[derive(Debug, Default, Component, Inspectable)]
 pub struct CellSelectionButton {
     // TODO: this should be UVec2, but those aren't Inspectable
     pub cell: Vec2,
 }
 
 /// Stat modifier button
-#[derive(Debug /*, Inspectable*/)]
+#[derive(Debug, Component, Inspectable)]
 pub struct StatModifierButton {
     pub statid: StatId,
     pub modifier: isize,
 }
 
 /// Points text tag
-#[derive(Debug, Inspectable)]
+#[derive(Debug, Component, Inspectable)]
 pub struct PointsText;
 
 /// Stat modifier text
-#[derive(Debug /*, Inspectable*/)]
+#[derive(Debug, Component, Inspectable)]
 pub struct StatModifierText {
     pub statid: StatId,
 }
 
 /// Round text
-#[derive(Debug /*, Inspectable*/)]
+#[derive(Debug, Component, Inspectable)]
 pub struct RoundText;
 
 /// Automata health text
-#[derive(Debug /*, Inspectable*/)]
+#[derive(Debug, Component, Inspectable)]
 pub struct AutomataHealthText {
     pub player: bool,
 }
 
 /// Cell selection tag
+#[derive(Component)]
 pub struct CellSelection;
 
 /// HUD tag
+#[derive(Component)]
 pub struct Hud;

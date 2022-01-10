@@ -1,7 +1,7 @@
 //! AI dna
 
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
+use bevy_inspector_egui::prelude::*;
 
 use crate::resources::*;
 

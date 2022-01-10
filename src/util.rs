@@ -46,16 +46,16 @@ pub fn cell_position(cell: UVec2, z: f32) -> Vec3 {
 pub fn set_visible_recursive(
     entity: Entity,
     is_visible: bool,
-    visible_query: &mut Query<&mut Visible>,
+    visibility_query: &mut Query<&mut Visibility>,
     children_query: &Query<&Children>,
 ) {
-    if let Ok(mut visible) = visible_query.get_mut(entity) {
+    if let Ok(mut visible) = visibility_query.get_mut(entity) {
         visible.is_visible = is_visible;
     }
 
     if let Ok(children) = children_query.get(entity) {
         for child in children.iter() {
-            set_visible_recursive(*child, is_visible, visible_query, children_query);
+            set_visible_recursive(*child, is_visible, visibility_query, children_query);
         }
     }
 }

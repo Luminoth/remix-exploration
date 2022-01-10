@@ -17,8 +17,7 @@ use crate::resources::*;
 pub fn setup(
     mut commands: Commands,
     mut random: ResMut<Random>,
-    ui_materials: Res<UiMaterials>,
-    button_materials: Res<ButtonMaterials>,
+    button_colors: Res<ButtonColors>,
     fonts: Res<Fonts>,
 ) {
     // cameras
@@ -49,20 +48,13 @@ pub fn setup(
     commands.insert_resource(GameRound::default());
 
     // UI
-    let root = spawn_ui_root(&mut commands, &ui_materials);
+    let root = spawn_ui_root(&mut commands);
     commands.entity(root).with_children(|parent| {
         spawn_header(parent, &fonts, "Remix Exploration");
 
-        spawn_spacer(parent, &ui_materials);
+        spawn_spacer(parent);
 
-        spawn_ok_action(
-            parent,
-            &ui_materials,
-            &button_materials,
-            &fonts,
-            "Play",
-            true,
-        );
+        spawn_ok_action(parent, &button_colors, &fonts, "Play", true);
     });
 }
 
@@ -74,7 +66,7 @@ pub fn action_button_handler(
     >,
     mut state: ResMut<State<GameState>>,
 ) {
-    if let Ok((interaction, helper)) = action_query.single_mut() {
+    if let Ok((interaction, helper)) = action_query.get_single_mut() {
         if helper.interactable() && *interaction == Interaction::Clicked {
             state.set(GameState::Remix).unwrap();
         }
