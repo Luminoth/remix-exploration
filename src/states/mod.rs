@@ -64,17 +64,16 @@ fn spawn_spacer(parent: &mut ChildBuilder) {
 fn spawn_header(parent: &mut ChildBuilder, fonts: &Fonts, text: impl Into<String>) {
     parent.spawn_bundle(TextBundle {
         style: Style {
-            margin: Rect::all(Val::Px(5.0)),
+            margin: UiRect::all(Val::Px(5.0)),
             ..Default::default()
         },
-        text: Text::with_section(
+        text: Text::from_section(
             text,
             TextStyle {
                 font: fonts.normal.clone(),
                 font_size: 30.0,
                 color: Color::WHITE,
             },
-            Default::default(),
         ),
         ..Default::default()
     });
@@ -105,7 +104,7 @@ fn spawn_ok_action(
                     button: ButtonBundle {
                         style: Style {
                             size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                            margin: Rect::all(Val::Auto),
+                            margin: UiRect::all(Val::Auto),
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::Center,
                             ..Default::default()
@@ -118,14 +117,13 @@ fn spawn_ok_action(
                 })
                 .with_children(|parent| {
                     parent.spawn_bundle(TextBundle {
-                        text: Text::with_section(
+                        text: Text::from_section(
                             text,
                             TextStyle {
                                 font: fonts.normal.clone(),
                                 font_size: 40.0,
                                 color: Color::rgb(0.9, 0.9, 0.9),
                             },
-                            Default::default(),
                         ),
                         ..Default::default()
                     });

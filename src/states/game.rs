@@ -1,6 +1,7 @@
 //! Game state systems
 
 use bevy::prelude::*;
+use bevy::render::camera::ScalingMode;
 
 use super::*;
 
@@ -43,7 +44,7 @@ fn spawn_cell_selection_row(parent: &mut ChildBuilder, button_colors: &ButtonCol
                                 Val::Px(GRID_BUTTON_WIDTH),
                                 Val::Px(GRID_BUTTON_HEIGHT),
                             ),
-                            margin: Rect::all(Val::Auto),
+                            margin: UiRect::all(Val::Auto),
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::Center,
                             ..Default::default()
@@ -70,19 +71,15 @@ pub fn setup(
     fonts: Res<Fonts>,
 ) {
     // cameras
-    let mut camera = OrthographicCameraBundle::new_2d();
-    camera.orthographic_projection.scaling_mode = bevy::render::camera::ScalingMode::FixedVertical;
-    camera.orthographic_projection.scale = GRID_HEIGHT as f32 / 2.0;
+    let mut camera = Camera2dBundle::default();
+    camera.projection.scaling_mode = ScalingMode::FixedVertical(GRID_HEIGHT as f32 / 2.0);
 
     commands.insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)));
     commands
         .spawn_bundle(camera)
         .insert(MainCamera)
-        .insert(Name::new("Main Camera"));
-    commands
-        .spawn_bundle(UiCameraBundle::default())
         .insert(UiCamera)
-        .insert(Name::new("UI Camera"));
+        .insert(Name::new("Main Camera"));
 
     // grid world
     let parent = commands
@@ -115,17 +112,16 @@ pub fn setup(
                 .with_children(|parent| {
                     parent.spawn_bundle(TextBundle {
                         style: Style {
-                            margin: Rect::all(Val::Px(5.0)),
+                            margin: UiRect::all(Val::Px(5.0)),
                             ..Default::default()
                         },
-                        text: Text::with_section(
+                        text: Text::from_section(
                             "Select a cell for your automaton",
                             TextStyle {
                                 font: fonts.normal.clone(),
                                 font_size: 30.0,
                                 color: Color::WHITE,
                             },
-                            Default::default(),
                         ),
                         ..Default::default()
                     });
@@ -154,17 +150,16 @@ pub fn setup(
             .with_children(|parent| {
                 parent.spawn_bundle(TextBundle {
                     style: Style {
-                        margin: Rect::all(Val::Px(5.0)),
+                        margin: UiRect::all(Val::Px(5.0)),
                         ..Default::default()
                     },
-                    text: Text::with_section(
+                    text: Text::from_section(
                         "Player Health:",
                         TextStyle {
                             font: fonts.normal.clone(),
                             font_size: 30.0,
                             color: Color::WHITE,
                         },
-                        Default::default(),
                     ),
                     visibility: Visibility { is_visible: false },
                     ..Default::default()
@@ -173,17 +168,16 @@ pub fn setup(
                 parent.spawn_bundle(AutomataHealthTextBundle {
                     text: TextBundle {
                         style: Style {
-                            margin: Rect::all(Val::Px(5.0)),
+                            margin: UiRect::all(Val::Px(5.0)),
                             ..Default::default()
                         },
-                        text: Text::with_section(
+                        text: Text::from_section(
                             format!("{}", 0),
                             TextStyle {
                                 font: fonts.normal.clone(),
                                 font_size: 30.0,
                                 color: Color::WHITE,
                             },
-                            Default::default(),
                         ),
                         visibility: Visibility { is_visible: false },
                         ..Default::default()
@@ -196,17 +190,16 @@ pub fn setup(
 
                 parent.spawn_bundle(TextBundle {
                     style: Style {
-                        margin: Rect::all(Val::Px(5.0)),
+                        margin: UiRect::all(Val::Px(5.0)),
                         ..Default::default()
                     },
-                    text: Text::with_section(
+                    text: Text::from_section(
                         "Round:",
                         TextStyle {
                             font: fonts.normal.clone(),
                             font_size: 30.0,
                             color: Color::WHITE,
                         },
-                        Default::default(),
                     ),
                     visibility: Visibility { is_visible: false },
                     ..Default::default()
@@ -215,17 +208,16 @@ pub fn setup(
                 parent.spawn_bundle(RoundTextBundle {
                     text: TextBundle {
                         style: Style {
-                            margin: Rect::all(Val::Px(5.0)),
+                            margin: UiRect::all(Val::Px(5.0)),
                             ..Default::default()
                         },
-                        text: Text::with_section(
+                        text: Text::from_section(
                             format!("{}", round.round + 1),
                             TextStyle {
                                 font: fonts.normal.clone(),
                                 font_size: 30.0,
                                 color: Color::WHITE,
                             },
-                            Default::default(),
                         ),
                         visibility: Visibility { is_visible: false },
                         ..Default::default()
@@ -238,17 +230,16 @@ pub fn setup(
 
                 parent.spawn_bundle(TextBundle {
                     style: Style {
-                        margin: Rect::all(Val::Px(5.0)),
+                        margin: UiRect::all(Val::Px(5.0)),
                         ..Default::default()
                     },
-                    text: Text::with_section(
+                    text: Text::from_section(
                         "AI Health:",
                         TextStyle {
                             font: fonts.normal.clone(),
                             font_size: 30.0,
                             color: Color::WHITE,
                         },
-                        Default::default(),
                     ),
                     visibility: Visibility { is_visible: false },
                     ..Default::default()
@@ -257,17 +248,16 @@ pub fn setup(
                 parent.spawn_bundle(AutomataHealthTextBundle {
                     text: TextBundle {
                         style: Style {
-                            margin: Rect::all(Val::Px(5.0)),
+                            margin: UiRect::all(Val::Px(5.0)),
                             ..Default::default()
                         },
-                        text: Text::with_section(
+                        text: Text::from_section(
                             format!("{}", 0),
                             TextStyle {
                                 font: fonts.normal.clone(),
                                 font_size: 30.0,
                                 color: Color::WHITE,
                             },
-                            Default::default(),
                         ),
                         visibility: Visibility { is_visible: false },
                         ..Default::default()

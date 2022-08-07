@@ -15,7 +15,7 @@ pub fn setup(mut commands: Commands, button_colors: Res<ButtonColors>, fonts: Re
     // cameras
     commands.insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)));
     commands
-        .spawn_bundle(UiCameraBundle::default())
+        .spawn_bundle(Camera2dBundle::default())
         .insert(UiCamera)
         .insert(Name::new("UI Camera"));
 

@@ -22,6 +22,7 @@ mod util;
 
 use bevy::diagnostic::*;
 use bevy::prelude::*;
+use bevy::window::PresentMode;
 use bevy_egui::{EguiPlugin, EguiSettings};
 use bevy_inspector_egui::{RegisterInspectable, WorldInspectorParams, WorldInspectorPlugin};
 
@@ -103,7 +104,7 @@ fn main() {
         title: "Remix - Exploration".to_owned(),
         width: WINDOW_WIDTH,
         height: WINDOW_HEIGHT,
-        vsync: false,
+        present_mode: PresentMode::Immediate,
         resizable: false,
         ..Default::default()
     })
@@ -116,8 +117,11 @@ fn main() {
     .add_plugin(FrameTimeDiagnosticsPlugin);
 
     // egui
-    app.insert_resource(EguiSettings { scale_factor: 0.75 })
-        .add_plugin(EguiPlugin);
+    app.insert_resource(EguiSettings {
+        scale_factor: 0.75,
+        ..Default::default()
+    })
+    .add_plugin(EguiPlugin);
 
     // inspector
     app.insert_resource(WorldInspectorParams {

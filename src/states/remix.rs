@@ -35,17 +35,16 @@ fn spawn_stat_input(
         .with_children(|parent| {
             parent.spawn_bundle(TextBundle {
                 style: Style {
-                    margin: Rect::all(Val::Px(5.0)),
+                    margin: UiRect::all(Val::Px(5.0)),
                     ..Default::default()
                 },
-                text: Text::with_section(
+                text: Text::from_section(
                     statid.name(),
                     TextStyle {
                         font: fonts.normal.clone(),
                         font_size: 14.0,
                         color: Color::WHITE,
                     },
-                    Default::default(),
                 ),
                 ..Default::default()
             });
@@ -53,17 +52,16 @@ fn spawn_stat_input(
             parent.spawn_bundle(StatModifierTextBundle {
                 text: TextBundle {
                     style: Style {
-                        margin: Rect::all(Val::Px(5.0)),
+                        margin: UiRect::all(Val::Px(5.0)),
                         ..Default::default()
                     },
-                    text: Text::with_section(
+                    text: Text::from_section(
                         format!("{}", player_stats.stats().value(statid)),
                         TextStyle {
                             font: fonts.normal.clone(),
                             font_size: 14.0,
                             color: Color::WHITE,
                         },
-                        Default::default(),
                     ),
                     ..Default::default()
                 },
@@ -88,7 +86,7 @@ fn spawn_stat_input(
                             button: ButtonBundle {
                                 style: Style {
                                     size: Size::new(Val::Px(15.0), Val::Px(15.0)),
-                                    margin: Rect::all(Val::Auto),
+                                    margin: UiRect::all(Val::Auto),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
                                     ..Default::default()
@@ -104,14 +102,13 @@ fn spawn_stat_input(
                         })
                         .with_children(|parent| {
                             parent.spawn_bundle(TextBundle {
-                                text: Text::with_section(
+                                text: Text::from_section(
                                     "^",
                                     TextStyle {
                                         font: fonts.normal.clone(),
                                         font_size: 12.0,
                                         color: Color::rgb(0.9, 0.9, 0.9),
                                     },
-                                    Default::default(),
                                 ),
                                 ..Default::default()
                             });
@@ -122,7 +119,7 @@ fn spawn_stat_input(
                             button: ButtonBundle {
                                 style: Style {
                                     size: Size::new(Val::Px(15.0), Val::Px(15.0)),
-                                    margin: Rect::all(Val::Auto),
+                                    margin: UiRect::all(Val::Auto),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
                                     ..Default::default()
@@ -138,14 +135,13 @@ fn spawn_stat_input(
                         })
                         .with_children(|parent| {
                             parent.spawn_bundle(TextBundle {
-                                text: Text::with_section(
+                                text: Text::from_section(
                                     "v",
                                     TextStyle {
                                         font: fonts.normal.clone(),
                                         font_size: 12.0,
                                         color: Color::rgb(0.9, 0.9, 0.9),
                                     },
-                                    Default::default(),
                                 ),
                                 ..Default::default()
                             });
@@ -154,17 +150,16 @@ fn spawn_stat_input(
 
             parent.spawn_bundle(TextBundle {
                 style: Style {
-                    margin: Rect::all(Val::Px(5.0)),
+                    margin: UiRect::all(Val::Px(5.0)),
                     ..Default::default()
                 },
-                text: Text::with_section(
+                text: Text::from_section(
                     description,
                     TextStyle {
                         font: fonts.normal.clone(),
                         font_size: 14.0,
                         color: Color::WHITE,
                     },
-                    Default::default(),
                 ),
                 ..Default::default()
             });
@@ -181,7 +176,7 @@ pub fn setup(
     // cameras
     commands.insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)));
     commands
-        .spawn_bundle(UiCameraBundle::default())
+        .spawn_bundle(Camera2dBundle::default())
         .insert(UiCamera)
         .insert(Name::new("UI Camera"));
 
@@ -205,17 +200,16 @@ pub fn setup(
             .with_children(|parent| {
                 parent.spawn_bundle(TextBundle {
                     style: Style {
-                        margin: Rect::all(Val::Px(5.0)),
+                        margin: UiRect::all(Val::Px(5.0)),
                         ..Default::default()
                     },
-                    text: Text::with_section(
+                    text: Text::from_section(
                         "Remaining Stat Points: ",
                         TextStyle {
                             font: fonts.normal.clone(),
                             font_size: 24.0,
                             color: Color::WHITE,
                         },
-                        Default::default(),
                     ),
                     ..Default::default()
                 });
@@ -223,17 +217,16 @@ pub fn setup(
                 parent.spawn_bundle(PointsTextBundle {
                     text: TextBundle {
                         style: Style {
-                            margin: Rect::all(Val::Px(5.0)),
+                            margin: UiRect::all(Val::Px(5.0)),
                             ..Default::default()
                         },
-                        text: Text::with_section(
+                        text: Text::from_section(
                             format!("{}", player_stats.points()),
                             TextStyle {
                                 font: fonts.normal.clone(),
                                 font_size: 24.0,
                                 color: Color::WHITE,
                             },
-                            Default::default(),
                         ),
                         ..Default::default()
                     },
